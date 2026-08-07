@@ -1,0 +1,24 @@
+# dependencies
+/node_modules/
+
+# Next.js and test output
+/.next/
+/out/
+/coverage/
+/playwright-report/
+/test-results/
+
+# local platform state
+/.vercel/
+/.supabase/
+
+# environment files (the example is intentionally tracked)
+.env
+.env.*
+!.env.example
+
+# local tooling
+*.tsbuildinfo
+.DS_Store
+Thumbs.db
+npm-debug.log*
