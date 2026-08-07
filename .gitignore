@@ -4,6 +4,7 @@
 # Next.js and test output
 /.next/
 /out/
+/next-env.d.ts
 /coverage/
 /playwright-report/
 /test-results/
