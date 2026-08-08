@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 const contextTags = ["Valencia", "MERCURI", "Erasmus community"];
 const resourceTags = ["Room", "Bicycle", "Furniture", "Giveaway"];
 
@@ -26,6 +28,10 @@ export default function HomePage() {
           </div>
         </div>
         <p className="status">Foundation ready · marketplace flows coming next</p>
+        <div className="button-row">
+          <Link className="button-link" href="/login">Sign in with email</Link>
+          <Link className="button-link button-secondary" href="/account">View account</Link>
+        </div>
       </section>
     </main>
   );

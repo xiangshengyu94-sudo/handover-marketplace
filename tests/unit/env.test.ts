@@ -14,6 +14,8 @@ const validEnvironment = {
   SUPABASE_SECRET_KEY: "sb_secret_staging_value",
   RESEND_API_KEY: "re_staging_value",
   RESEND_WEBHOOK_SECRET: "whsec_staging_value",
+  ABUSE_HASH_SECRET: "abuse-staging-value",
+  CAPTCHA_SECRET_KEY: "captcha-staging-value",
 } as const;
 
 describe("environment contract", () => {
@@ -33,6 +35,8 @@ describe("environment contract", () => {
     "SUPABASE_SECRET_KEY",
     "RESEND_API_KEY",
     "RESEND_WEBHOOK_SECRET",
+    "ABUSE_HASH_SECRET",
+    "CAPTCHA_SECRET_KEY",
   ] as const)("names a missing %s without echoing another secret", (name) => {
     const source = { ...validEnvironment } as Record<string, string | undefined>;
     delete source[name];

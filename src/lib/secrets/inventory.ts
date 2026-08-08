@@ -36,6 +36,12 @@ export const SECRET_INVENTORY = [
     rotationOwner: "security-owner",
   },
   {
+    variable: "ABUSE_HASH_SECRET",
+    purpose: "abuse-identifier-hashing",
+    exposure: "server-only",
+    rotationOwner: "security-owner",
+  },
+  {
     variable: "SENTRY_AUTH_TOKEN",
     purpose: "telemetry-upload",
     exposure: "build-server-only",

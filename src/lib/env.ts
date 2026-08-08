@@ -62,6 +62,8 @@ export function readServerEnv(source: EnvironmentSource = process.env) {
     supabaseSecretKey: required(source, "SUPABASE_SECRET_KEY"),
     resendApiKey: required(source, "RESEND_API_KEY"),
     resendWebhookSecret: required(source, "RESEND_WEBHOOK_SECRET"),
+    abuseHashSecret: required(source, "ABUSE_HASH_SECRET"),
+    captchaSecretKey: required(source, "CAPTCHA_SECRET_KEY"),
   } as const;
 }
 

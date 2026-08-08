@@ -8,6 +8,8 @@
 /coverage/
 /playwright-report/
 /test-results/
+/.playwright-browsers/
+/.tmp/
 
 # local platform state
 /.vercel/

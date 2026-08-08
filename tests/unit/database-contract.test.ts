@@ -9,6 +9,10 @@ const accessMigration = readFileSync(
   "supabase/migrations/202608070002_private_schemas_roles_and_rls.sql",
   "utf8",
 );
+const authMigration = readFileSync(
+  "supabase/migrations/202608070003_auth_intents_and_abuse_controls.sql",
+  "utf8",
+);
 
 const exposedTables = [
   "profiles",
@@ -57,9 +61,12 @@ describe("database migration contract", () => {
   });
 
   it("pins the search path on every security-definer helper", () => {
-    const securityDefinerFunctions = accessMigration
-      .split("create function")
-      .filter((chunk) => chunk.includes("security definer"));
+    const securityDefinerFunctions = [accessMigration, authMigration].flatMap(
+      (migration) =>
+        migration
+          .split(/create(?: or replace)? function/)
+          .filter((chunk) => chunk.includes("security definer")),
+    );
 
     expect(securityDefinerFunctions.length).toBeGreaterThan(0);
     for (const functionBody of securityDefinerFunctions) {
@@ -68,10 +75,34 @@ describe("database migration contract", () => {
   });
 
   it("contains balanced PostgreSQL dollar-quoted bodies", () => {
-    for (const migration of [coreMigration, accessMigration]) {
+    for (const migration of [coreMigration, accessMigration, authMigration]) {
       expect(migration.match(/\$\$/g)?.length ?? 0).toSatisfy(
         (count: number) => count % 2 === 0,
       );
     }
+  });
+
+  it("keeps auth intent and abuse state private behind service-only RPCs", () => {
+    for (const table of [
+      "auth_intents",
+      "rate_limit_buckets",
+      "captcha_challenges",
+    ]) {
+      expect(authMigration).toContain(
+        `alter table private.${table} force row level security;`,
+      );
+    }
+    expect(authMigration).toContain(
+      "from public, anon, authenticated;",
+    );
+    expect(authMigration).toContain("to service_role;");
+    expect(authMigration).not.toMatch(
+      /grant execute on function public\.admin_[^;]+to (?:anon|authenticated)/,
+    );
+  });
+
+  it("revokes member capability while an email change is pending", () => {
+    expect(authMigration).toContain("u.email_confirmed_at is not null");
+    expect(authMigration).toContain("u.new_email is null");
   });
 });

@@ -6,8 +6,8 @@ import { cookies } from "next/headers";
 import { readPublicEnv } from "@/lib/env";
 
 export async function createClient() {
-  const environment = readPublicEnv();
   const cookieStore = await cookies();
+  const environment = readPublicEnv();
 
   return createServerClient(
     environment.supabaseUrl.toString(),

@@ -5,10 +5,10 @@ set search_path = public, extensions;
 
 select plan(11);
 
-insert into auth.users (id, instance_id, aud, role, email)
+insert into auth.users (id, instance_id, aud, role, email, email_confirmed_at)
 values
-  ('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaa1', '00000000-0000-0000-0000-000000000000', 'authenticated', 'authenticated', 'owner@example.test'),
-  ('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaa2', '00000000-0000-0000-0000-000000000000', 'authenticated', 'authenticated', 'other@example.test');
+  ('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaa1', '00000000-0000-0000-0000-000000000000', 'authenticated', 'authenticated', 'owner@example.test', now()),
+  ('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaa2', '00000000-0000-0000-0000-000000000000', 'authenticated', 'authenticated', 'other@example.test', now());
 
 insert into private.user_roles (user_id, role)
 values ('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaa1', 'moderator');

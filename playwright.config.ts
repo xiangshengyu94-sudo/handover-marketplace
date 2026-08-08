@@ -17,10 +17,16 @@ export default defineConfig({
   webServer: process.env.PLAYWRIGHT_BASE_URL
     ? undefined
     : {
-        command: "npm.cmd run dev",
-        url: baseURL,
-        reuseExistingServer: !process.env.CI,
+      command: "npm.cmd run dev",
+      url: baseURL,
+      reuseExistingServer: !process.env.CI,
+      env: {
+        NEXT_PUBLIC_APP_ENV: "test",
+        NEXT_PUBLIC_APP_URL: baseURL,
+        NEXT_PUBLIC_SUPABASE_URL: "http://127.0.0.1:54321",
+        NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: "e2e-placeholder",
       },
+    },
   projects: [
     { name: "chromium", use: { ...devices["Desktop Chrome"] } },
     { name: "mobile", use: { ...devices["Pixel 7"] } },
