@@ -25,6 +25,10 @@ const contactMigration = readFileSync(
   "supabase/migrations/202608070006_contact_relay.sql",
   "utf8",
 );
+const assistedMigration = readFileSync(
+  "supabase/migrations/202608070007_assisted_intake.sql",
+  "utf8",
+);
 
 const exposedTables = [
   "profiles",
@@ -73,7 +77,7 @@ describe("database migration contract", () => {
   });
 
   it("pins the search path on every security-definer helper", () => {
-    const securityDefinerFunctions = [accessMigration, authMigration, authoringMigration, lifecycleMigration, contactMigration].flatMap(
+    const securityDefinerFunctions = [accessMigration, authMigration, authoringMigration, lifecycleMigration, contactMigration, assistedMigration].flatMap(
       (migration) =>
         migration
           .split(/create(?: or replace)? function/)
@@ -87,7 +91,7 @@ describe("database migration contract", () => {
   });
 
   it("contains balanced PostgreSQL dollar-quoted bodies", () => {
-    for (const migration of [coreMigration, accessMigration, authMigration, authoringMigration, lifecycleMigration, contactMigration]) {
+    for (const migration of [coreMigration, accessMigration, authMigration, authoringMigration, lifecycleMigration, contactMigration, assistedMigration]) {
       expect(migration.match(/\$\$/g)?.length ?? 0).toSatisfy(
         (count: number) => count % 2 === 0,
       );
@@ -134,6 +138,22 @@ describe("database migration contract", () => {
     }
     expect(contactMigration).toContain("from public, anon, authenticated;");
     expect(contactMigration).not.toMatch(/grant (?:select|all) on private\.contact_(?:intents|outbox|provider_events)[^;]+to (?:anon|authenticated)/);
+  });
+
+  it("blocks assisted publication until an atomic author claim", () => {
+    expect(assistedMigration).toContain("create trigger listings_guard_pending_assisted_draft");
+    expect(assistedMigration).toContain("assisted draft must be claimed before publication");
+    expect(assistedMigration).toContain("set status = 'claimed', claimant_id = p_claimant_id");
+    expect(assistedMigration).toContain("update public.listings set owner_id = p_claimant_id");
+    expect(assistedMigration).toContain("for update;");
+  });
+
+  it("keeps assisted identity evidence private and erases rejected content", () => {
+    expect(assistedMigration).toContain("alter table private.assisted_claims force row level security;");
+    expect(assistedMigration).toContain("author_email_hmac");
+    expect(assistedMigration).not.toContain("author_email text");
+    expect(assistedMigration).toContain("description = 'The intended author rejected this assisted draft.'");
+    expect(assistedMigration).toContain("status = 'deleted', generation = gen_random_uuid()");
   });
 
   it("keeps auth intent and abuse state private behind service-only RPCs", () => {

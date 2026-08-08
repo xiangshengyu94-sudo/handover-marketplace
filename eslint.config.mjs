@@ -29,6 +29,7 @@ export default defineConfig([
       "src/lib/auth/admin.ts",
       "src/lib/email/dispatcher.ts",
       "src/lib/images/process.ts",
+      "src/lib/assisted/claims.ts",
       "src/lib/moderation/actions.ts",
       "src/lib/roles/manage.ts",
       "src/lib/privacy/delete-account.ts",

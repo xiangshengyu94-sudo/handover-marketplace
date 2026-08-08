@@ -16,6 +16,7 @@ const validEnvironment = {
   RESEND_WEBHOOK_SECRET: "whsec_staging_value",
   EMAIL_FROM: "Handover <handover@staging.example>",
   CRON_DISPATCH_SECRET: "cron-staging-value",
+  ASSISTED_CLAIM_HMAC_SECRET: "claim-staging-value",
   ABUSE_HASH_SECRET: "abuse-staging-value",
   CAPTCHA_SECRET_KEY: "captcha-staging-value",
 } as const;
@@ -39,6 +40,7 @@ describe("environment contract", () => {
     "RESEND_WEBHOOK_SECRET",
     "EMAIL_FROM",
     "CRON_DISPATCH_SECRET",
+    "ASSISTED_CLAIM_HMAC_SECRET",
     "ABUSE_HASH_SECRET",
     "CAPTCHA_SECRET_KEY",
   ] as const)("names a missing %s without echoing another secret", (name) => {
