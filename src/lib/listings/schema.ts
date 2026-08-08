@@ -30,6 +30,14 @@ const housingListingSchema = z
     kind: z.literal("housing"),
     housing: z
       .object({
+        subtype: z.enum([
+          "room",
+          "studio",
+          "entire-place",
+          "shared-room",
+          "sublet",
+          "other",
+        ]),
         furnished: z.boolean(),
         billsIncluded: z.boolean(),
         publicationRightsAcknowledged: z.literal(true),

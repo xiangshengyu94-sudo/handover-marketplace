@@ -13,6 +13,14 @@ const authMigration = readFileSync(
   "supabase/migrations/202608070003_auth_intents_and_abuse_controls.sql",
   "utf8",
 );
+const authoringMigration = readFileSync(
+  "supabase/migrations/202608070004_authoring_and_private_media.sql",
+  "utf8",
+);
+const lifecycleMigration = readFileSync(
+  "supabase/migrations/202608070005_public_discovery_and_lifecycle.sql",
+  "utf8",
+);
 
 const exposedTables = [
   "profiles",
@@ -61,7 +69,7 @@ describe("database migration contract", () => {
   });
 
   it("pins the search path on every security-definer helper", () => {
-    const securityDefinerFunctions = [accessMigration, authMigration].flatMap(
+    const securityDefinerFunctions = [accessMigration, authMigration, authoringMigration, lifecycleMigration].flatMap(
       (migration) =>
         migration
           .split(/create(?: or replace)? function/)
@@ -75,11 +83,35 @@ describe("database migration contract", () => {
   });
 
   it("contains balanced PostgreSQL dollar-quoted bodies", () => {
-    for (const migration of [coreMigration, accessMigration, authMigration]) {
+    for (const migration of [coreMigration, accessMigration, authMigration, authoringMigration, lifecycleMigration]) {
       expect(migration.match(/\$\$/g)?.length ?? 0).toSatisfy(
         (count: number) => count % 2 === 0,
       );
     }
+  });
+
+  it("keeps originals and sanitized derivatives in private buckets", () => {
+    expect(authoringMigration).toContain("'listing-staging', 'listing-staging', false");
+    expect(authoringMigration).toContain("'listing-media', 'listing-media', false");
+    expect(authoringMigration).not.toMatch(/create policy[^;]+listing-media[^;]+to anon/is);
+    expect(authoringMigration).toContain("to service_role;");
+  });
+
+  it("routes listing writes through atomic member RPCs", () => {
+    expect(authoringMigration).toContain("create function public.save_own_listing(");
+    expect(authoringMigration).toContain("revoke insert, update, delete on public.listings");
+    expect(authoringMigration).toContain("grant execute on function public.save_own_listing(");
+    expect(authoringMigration).toContain("where id = v_id and version = p_expected_version");
+    expect(authoringMigration).toContain("listing images are not ready");
+  });
+
+  it("records lifecycle history and cache work in private durable tables", () => {
+    expect(lifecycleMigration).toContain("create table private.listing_status_history");
+    expect(lifecycleMigration).toContain("create table private.cache_invalidation_outbox");
+    expect(lifecycleMigration).toContain("force row level security");
+    expect(lifecycleMigration).toContain("insert into private.listing_status_history");
+    expect(lifecycleMigration).toContain("insert into private.cache_invalidation_outbox");
+    expect(lifecycleMigration).toContain("where id = p_listing_id and version = p_expected_version");
   });
 
   it("keeps auth intent and abuse state private behind service-only RPCs", () => {

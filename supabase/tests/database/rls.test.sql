@@ -80,15 +80,13 @@ select ok(
   public.current_user_has_role('moderator'),
   'an assigned moderator can check their current protected role without reading the role table'
 );
-update public.listings
-set title = 'Owner updated draft'
-where id = 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbb2';
-reset role;
-select is(
-  (select title from public.listings where id = 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbb2'),
-  'Owner updated draft',
-  'an active owner can update their own draft'
+select throws_ok(
+  $$ update public.listings set title = 'Owner updated draft' where id = 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbb2' $$,
+  '42501',
+  null,
+  'even owners must write through the validated save RPC'
 );
+reset role;
 
 set local role authenticated;
 select set_config('request.jwt.claims', '{"sub":"aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaa2","role":"authenticated"}', true);
@@ -97,13 +95,13 @@ select results_eq(
   $$ values (1::bigint) $$,
   'another member cannot see the owner draft'
 );
-update public.listings set title = 'Tampered title' where id = 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbb2';
-reset role;
-select is(
-  (select title from public.listings where id = 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbb2'),
-  'Owner updated draft',
-  'a non-owner update cannot modify another listing'
+select throws_ok(
+  $$ update public.listings set title = 'Tampered title' where id = 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbb2' $$,
+  '42501',
+  null,
+  'a non-owner cannot bypass the validated save RPC'
 );
+reset role;
 
 update public.organizations
 set status = 'retired'

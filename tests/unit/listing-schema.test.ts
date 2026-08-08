@@ -34,6 +34,7 @@ describe("kind-specific listing input", () => {
       kind: "housing",
       resourceCategoryId: ids.room,
       housing: {
+        subtype: "room",
         furnished: true,
         billsIncluded: false,
         publicationRightsAcknowledged: true,
@@ -87,6 +88,7 @@ describe("kind-specific listing input", () => {
         kind: "housing",
         resourceCategoryId: ids.room,
         housing: {
+          subtype: "room",
           furnished: false,
           billsIncluded: false,
           publicationRightsAcknowledged: true,
@@ -105,6 +107,7 @@ describe("kind-specific listing input", () => {
         resourceCategoryId: ids.room,
         streetAddress: "Carrer de Example 42",
         housing: {
+          subtype: "room",
           furnished: false,
           billsIncluded: false,
           publicationRightsAcknowledged: true,
@@ -130,5 +133,22 @@ describe("kind-specific listing input", () => {
         },
       }),
     ).toThrow("Giveaway items must have a zero price");
+  });
+
+  it("requires a supported housing subtype", () => {
+    expect(() =>
+      schema.parse({
+        ...common,
+        kind: "housing",
+        resourceCategoryId: ids.room,
+        housing: {
+          furnished: true,
+          billsIncluded: true,
+          publicationRightsAcknowledged: true,
+          permissionAcknowledged: true,
+          safetyWarningAcknowledged: true,
+        },
+      }),
+    ).toThrow();
   });
 });
