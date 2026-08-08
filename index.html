@@ -1,0 +1,338 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Handover brings rooms and everyday items from international communities into one calm, searchable place.">
+  <title>Handover — Pass useful things forward</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #18231d;
+      --muted: #5f6d65;
+      --paper: #f4f0e7;
+      --surface: #fffdf8;
+      --context: #d8eadf;
+      --resource: #ffd7ae;
+      --accent: #12643c;
+      --line: rgba(24, 35, 29, .13);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 10% 2%, rgba(255, 215, 174, .75), transparent 30rem),
+        radial-gradient(circle at 92% 80%, rgba(216, 234, 223, .95), transparent 34rem),
+        var(--paper);
+    }
+    button, select { font: inherit; }
+    button { cursor: pointer; }
+    a { color: inherit; }
+    a:focus-visible, button:focus-visible, select:focus-visible { outline: 3px solid rgba(18, 100, 60, .32); outline-offset: 3px; }
+    .site-header {
+      display: flex; width: min(88rem, 100%); margin: 0 auto; padding: 1.1rem 1rem;
+      align-items: center; justify-content: space-between; gap: 1.5rem;
+    }
+    .wordmark { font: 650 1.65rem Georgia, serif; text-decoration: none; }
+    .site-header nav { display: flex; align-items: center; gap: .5rem 1.2rem; }
+    .site-header nav a { font-weight: 720; text-decoration: none; }
+    .nav-cta, .button-link {
+      display: inline-flex; min-height: 3rem; align-items: center; justify-content: center;
+      padding: .72rem 1rem; border: 1px solid var(--accent); border-radius: 999px;
+      color: white; background: var(--accent); font-weight: 760; text-decoration: none;
+    }
+    main { width: min(88rem, 100%); margin: 0 auto; padding: clamp(1.5rem, 4vw, 4rem) 1rem 5rem; }
+    .hero {
+      display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: .8rem 2rem;
+      align-items: end; padding: clamp(1rem, 3vw, 2.5rem) 0 clamp(2.5rem, 6vw, 5rem);
+    }
+    .hero-copy > * { grid-column: 1; }
+    .eyebrow { margin: 0; color: var(--accent); font-size: .8rem; font-weight: 780; letter-spacing: .09em; text-transform: uppercase; }
+    h1 { max-width: 11ch; margin: .5rem 0 1rem; font: 500 clamp(3.6rem, 8vw, 7.8rem)/.92 Georgia, serif; letter-spacing: -.055em; }
+    .lede { max-width: 44rem; margin: 0; color: var(--muted); font-size: clamp(1.05rem, 2.1vw, 1.38rem); line-height: 1.55; }
+    .hero-side { display: grid; justify-items: end; gap: .8rem; padding-bottom: .3rem; }
+    .demo-note { max-width: 14rem; margin: 0; color: var(--muted); font-size: .82rem; line-height: 1.45; text-align: right; }
+    .market-layout { display: grid; grid-template-columns: minmax(15rem, .28fr) minmax(0, 1fr); gap: clamp(1.25rem, 4vw, 3rem); align-items: start; }
+    .filters {
+      position: sticky; top: 1rem; overflow: hidden; border: 1px solid var(--line);
+      border-radius: 1.2rem; background: rgba(255, 253, 248, .94); box-shadow: 0 1rem 3rem rgba(41, 55, 47, .06);
+    }
+    .filter-form { display: grid; gap: 1.15rem; padding: 1.25rem; }
+    .filter-heading { display: flex; align-items: baseline; justify-content: space-between; }
+    .filter-heading h2 { margin: 0; font: 500 1.5rem Georgia, serif; }
+    .clear { padding: 0; border: 0; color: var(--accent); background: transparent; font-size: .86rem; font-weight: 750; text-decoration: underline; }
+    .field { display: grid; gap: .45rem; font-weight: 730; }
+    .field select { min-height: 2.8rem; padding: .6rem .7rem; color: var(--ink); border: 1px solid rgba(24, 35, 29, .22); border-radius: .65rem; background: var(--surface); }
+    .segmented { display: grid; grid-template-columns: repeat(3, 1fr); gap: .35rem; }
+    .segmented button { min-height: 2.55rem; padding: .5rem .2rem; border: 1px solid rgba(24, 35, 29, .16); border-radius: .62rem; color: var(--muted); background: transparent; font-size: .84rem; font-weight: 720; }
+    .segmented button[aria-pressed="true"] { color: var(--accent); border-color: var(--accent); background: var(--context); }
+    .filter-result { margin: 0; padding: .9rem 1.25rem; border-top: 1px solid var(--line); color: var(--muted); font-size: .88rem; font-weight: 700; }
+    .results { min-width: 0; }
+    .results-header { display: flex; align-items: end; justify-content: space-between; gap: 1rem; margin-bottom: 1.25rem; }
+    .results-header h2 { margin: .2rem 0 0; font: 500 clamp(2rem, 4vw, 3.25rem) Georgia, serif; }
+    .results-header span { color: var(--muted); }
+    .listing-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.2rem; }
+    .listing-card { overflow: hidden; border: 1px solid var(--line); border-radius: 1.2rem; background: var(--surface); box-shadow: 0 1rem 3rem rgba(41, 55, 47, .07); transition: transform .18s ease, box-shadow .18s ease; }
+    .listing-card:hover { transform: translateY(-3px); box-shadow: 0 1.35rem 3.4rem rgba(41, 55, 47, .12); }
+    .card-art { position: relative; display: grid; min-height: 10.8rem; place-items: center; background: linear-gradient(135deg, var(--context), #b7d3c0); }
+    .card-art.item { background: linear-gradient(135deg, var(--resource), #eab97d); }
+    .art-icon { font-size: 3.6rem; filter: saturate(.75); }
+    .verified { position: absolute; top: .85rem; right: .85rem; padding: .38rem .58rem; border-radius: 999px; color: var(--accent); background: rgba(255, 253, 248, .9); font-size: .7rem; font-weight: 800; letter-spacing: .02em; }
+    .card-body { display: grid; gap: .85rem; padding: 1.2rem; }
+    .tags { display: flex; flex-wrap: wrap; gap: .35rem; }
+    .tag { padding: .36rem .58rem; border-radius: 999px; font-size: .74rem; font-weight: 720; }
+    .tag.context { background: var(--context); }
+    .tag.resource { background: var(--resource); }
+    .card-body h3 { margin: 0; font: 500 1.72rem Georgia, serif; }
+    .card-body > p { min-height: 4.35rem; margin: 0; color: var(--muted); line-height: 1.48; }
+    .meta { display: grid; grid-template-columns: repeat(2, 1fr); gap: .65rem; margin: 0; }
+    .meta div { display: grid; gap: .14rem; }
+    .meta dt { color: var(--muted); font-size: .7rem; font-weight: 760; letter-spacing: .06em; text-transform: uppercase; }
+    .meta dd { margin: 0; font-weight: 700; }
+    .card-footer { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding-top: .8rem; border-top: 1px solid var(--line); }
+    .card-footer strong { font-size: 1.22rem; }
+    .details { padding: 0; border: 0; color: var(--accent); background: transparent; font-weight: 760; text-decoration: underline; text-underline-offset: .2em; }
+    .empty { display: none; padding: 3rem; border: 1px dashed rgba(24, 35, 29, .25); border-radius: 1.2rem; background: rgba(255, 253, 248, .68); }
+    .empty h3 { margin: 0 0 .6rem; font: 500 2rem Georgia, serif; }
+    .empty p { margin: 0; color: var(--muted); }
+    .promise-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-top: clamp(3rem, 8vw, 7rem); }
+    .promise { padding: 1.3rem; border: 1px solid var(--line); border-radius: 1rem; background: rgba(255, 253, 248, .7); }
+    .promise strong { display: block; margin-bottom: .45rem; font: 500 1.35rem Georgia, serif; }
+    .promise p { margin: 0; color: var(--muted); line-height: 1.5; }
+    footer.page-footer { display: flex; width: min(88rem, 100%); margin: 0 auto; padding: 1.5rem 1rem 2.5rem; justify-content: space-between; gap: 1rem; border-top: 1px solid var(--line); color: var(--muted); font-size: .84rem; }
+    dialog { width: min(34rem, calc(100% - 2rem)); padding: 0; border: 1px solid var(--line); border-radius: 1.25rem; color: var(--ink); background: var(--surface); box-shadow: 0 2rem 7rem rgba(24, 35, 29, .28); }
+    dialog::backdrop { background: rgba(24, 35, 29, .45); backdrop-filter: blur(3px); }
+    .dialog-body { display: grid; gap: 1rem; padding: 1.5rem; }
+    .dialog-body h2 { margin: 0; font: 500 2rem Georgia, serif; }
+    .dialog-body p { margin: 0; color: var(--muted); line-height: 1.55; }
+    .safety { padding: .9rem 1rem; border-left: .3rem solid #c56617; border-radius: .75rem; background: var(--resource); color: var(--ink) !important; }
+    .dialog-actions { display: flex; justify-content: flex-end; }
+    .close { min-height: 2.75rem; padding: .65rem 1rem; border: 1px solid var(--accent); border-radius: 999px; color: white; background: var(--accent); font-weight: 750; }
+    @media (max-width: 46rem) {
+      .site-header nav a:not(.nav-cta) { display: none; }
+      .hero, .market-layout { grid-template-columns: 1fr; }
+      .hero-side { justify-items: start; }
+      .demo-note { max-width: 28rem; text-align: left; }
+      .filters { position: static; }
+      .listing-grid { grid-template-columns: 1fr; }
+      .promise-grid { grid-template-columns: 1fr; }
+      footer.page-footer { display: grid; }
+    }
+    @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } .listing-card { transition: none; } }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <a class="wordmark" href="#top">Handover</a>
+    <nav aria-label="Primary navigation">
+      <a href="#browse">Browse</a>
+      <a href="#safety">Safety</a>
+      <button class="nav-cta" type="button" data-demo>Post a handover</button>
+    </nav>
+  </header>
+
+  <main id="top">
+    <section class="hero" aria-labelledby="page-title">
+      <div class="hero-copy">
+        <p class="eyebrow">Arriving soon? Leaving soon?</p>
+        <h1 id="page-title">Pass useful things forward.</h1>
+        <p class="lede">Rooms and everyday items from international communities, structured in one place instead of scattered across WhatsApp and Facebook groups.</p>
+      </div>
+      <div class="hero-side">
+        <a class="button-link" href="#browse">Explore handovers</a>
+        <p class="demo-note">Public preview — sample listings only. No account is needed to explore.</p>
+      </div>
+    </section>
+
+    <section class="market-layout" id="browse" aria-label="Browse handovers">
+      <aside class="filters" aria-label="Listing filters">
+        <div class="filter-form">
+          <div class="filter-heading"><h2>Find your fit</h2><button class="clear" id="clear" type="button">Clear</button></div>
+          <label class="field">City
+            <select id="city">
+              <option value="all">All cities</option>
+              <option value="valencia">Valencia</option>
+              <option value="barcelona">Barcelona</option>
+              <option value="madrid">Madrid</option>
+            </select>
+          </label>
+          <label class="field">Community
+            <select id="community">
+              <option value="all">All communities</option>
+              <option value="mercuri">MERCURI</option>
+              <option value="erasmus">Erasmus</option>
+              <option value="international">International students</option>
+            </select>
+          </label>
+          <div class="field">Resource type
+            <div class="segmented" role="group" aria-label="Resource type">
+              <button type="button" data-kind="all" aria-pressed="true">All</button>
+              <button type="button" data-kind="housing" aria-pressed="false">Rooms</button>
+              <button type="button" data-kind="item" aria-pressed="false">Items</button>
+            </div>
+          </div>
+        </div>
+        <p class="filter-result" aria-live="polite"><span id="count">6</span> handovers found</p>
+      </aside>
+
+      <div class="results">
+        <header class="results-header">
+          <div><p class="eyebrow">Current handovers</p><h2>Arrive lighter.</h2></div>
+          <span>Updated today</span>
+        </header>
+        <div class="listing-grid" id="grid">
+          <article class="listing-card" data-city="valencia" data-community="mercuri" data-kind="housing">
+            <div class="card-art"><span class="art-icon" aria-hidden="true">☀️</span><span class="verified">✓ Email verified</span></div>
+            <div class="card-body">
+              <div class="tags"><span class="tag context">Valencia</span><span class="tag context">MERCURI</span><span class="tag resource">Room</span></div>
+              <h3>Sunny room near Blasco Ibáñez</h3>
+              <p>Furnished room in a shared flat, available when I leave. The landlord must approve the next tenant.</p>
+              <dl class="meta"><div><dt>Available</dt><dd>1 September</dd></div><div><dt>Stay</dt><dd>5–10 months</dd></div></dl>
+              <div class="card-footer"><strong>€410 / month</strong><button class="details" type="button" data-detail="room">View details</button></div>
+            </div>
+          </article>
+
+          <article class="listing-card" data-city="valencia" data-community="erasmus" data-kind="item">
+            <div class="card-art item"><span class="art-icon" aria-hidden="true">🚲</span><span class="verified">✓ Email verified</span></div>
+            <div class="card-body">
+              <div class="tags"><span class="tag context">Valencia</span><span class="tag context">Erasmus</span><span class="tag resource">Bicycle</span></div>
+              <h3>City bike with lock and lights</h3>
+              <p>Reliable everyday bike, recently serviced. Includes a U-lock, front basket and spare inner tube.</p>
+              <dl class="meta"><div><dt>Pickup</dt><dd>Ruzafa</dd></div><div><dt>Condition</dt><dd>Good</dd></div></dl>
+              <div class="card-footer"><strong>€85</strong><button class="details" type="button" data-detail="bike">View details</button></div>
+            </div>
+          </article>
+
+          <article class="listing-card" data-city="barcelona" data-community="international" data-kind="housing">
+            <div class="card-art"><span class="art-icon" aria-hidden="true">🏡</span><span class="verified">✓ Email verified</span></div>
+            <div class="card-body">
+              <div class="tags"><span class="tag context">Barcelona</span><span class="tag context">International</span><span class="tag resource">Room</span></div>
+              <h3>Quiet room in Gràcia flatshare</h3>
+              <p>Interior room in a three-person flat with a shared terrace. Contract and deposit handled by the agency.</p>
+              <dl class="meta"><div><dt>Available</dt><dd>15 August</dd></div><div><dt>Stay</dt><dd>6+ months</dd></div></dl>
+              <div class="card-footer"><strong>€590 / month</strong><button class="details" type="button" data-detail="room">View details</button></div>
+            </div>
+          </article>
+
+          <article class="listing-card" data-city="madrid" data-community="erasmus" data-kind="item">
+            <div class="card-art item"><span class="art-icon" aria-hidden="true">🪑</span><span class="verified">✓ Email verified</span></div>
+            <div class="card-body">
+              <div class="tags"><span class="tag context">Madrid</span><span class="tag context">Erasmus</span><span class="tag resource">Furniture</span></div>
+              <h3>Desk, chair and reading lamp</h3>
+              <p>A compact study set that fits a student room. Prefer to hand over everything together.</p>
+              <dl class="meta"><div><dt>Pickup</dt><dd>Moncloa</dd></div><div><dt>Condition</dt><dd>Very good</dd></div></dl>
+              <div class="card-footer"><strong>€40</strong><button class="details" type="button" data-detail="item">View details</button></div>
+            </div>
+          </article>
+
+          <article class="listing-card" data-city="valencia" data-community="international" data-kind="item">
+            <div class="card-art item"><span class="art-icon" aria-hidden="true">🍳</span><span class="verified">✓ Email verified</span></div>
+            <div class="card-body">
+              <div class="tags"><span class="tag context">Valencia</span><span class="tag context">International</span><span class="tag resource">Kitchen</span></div>
+              <h3>Starter kitchen box</h3>
+              <p>Pan, pot, plates, mugs and cutlery for one person. Clean and ready for the next kitchen.</p>
+              <dl class="meta"><div><dt>Pickup</dt><dd>Benimaclet</dd></div><div><dt>Condition</dt><dd>Used</dd></div></dl>
+              <div class="card-footer"><strong>Free</strong><button class="details" type="button" data-detail="item">View details</button></div>
+            </div>
+          </article>
+
+          <article class="listing-card" data-city="madrid" data-community="mercuri" data-kind="housing">
+            <div class="card-art"><span class="art-icon" aria-hidden="true">🪟</span><span class="verified">✓ Email verified</span></div>
+            <div class="card-body">
+              <div class="tags"><span class="tag context">Madrid</span><span class="tag context">MERCURI</span><span class="tag resource">Room</span></div>
+              <h3>Room by Ciudad Universitaria</h3>
+              <p>Bright room with desk and wardrobe. This is an introduction to the current flatmates, not a rental guarantee.</p>
+              <dl class="meta"><div><dt>Available</dt><dd>1 October</dd></div><div><dt>Stay</dt><dd>Semester</dd></div></dl>
+              <div class="card-footer"><strong>€520 / month</strong><button class="details" type="button" data-detail="room">View details</button></div>
+            </div>
+          </article>
+        </div>
+        <div class="empty" id="empty"><h3>No handovers match yet.</h3><p>Try another city, community, or resource type.</p></div>
+      </div>
+    </section>
+
+    <section class="promise-grid" id="safety" aria-label="How Handover works">
+      <article class="promise"><strong>One place, less noise</strong><p>Turn scattered group messages into structured, searchable listings with city and organization tags.</p></article>
+      <article class="promise"><strong>Right fields for each handover</strong><p>Rooms and everyday items use different details, categories and safety guidance.</p></article>
+      <article class="promise"><strong>Contactable, not “student certified”</strong><p>“Email verified” only confirms a contact channel. Always verify the person, room and item yourself.</p></article>
+    </section>
+  </main>
+
+  <footer class="page-footer"><span>© 2026 Handover — a public product preview</span><span>Never send money before checking the room, contract or item.</span></footer>
+
+  <dialog id="dialog" aria-labelledby="dialog-title">
+    <div class="dialog-body">
+      <p class="eyebrow">Product preview</p>
+      <h2 id="dialog-title">The full handover flow is next.</h2>
+      <p id="dialog-copy">This public page demonstrates the catalogue, tags and separate room/item structure. Account, publishing and contact delivery will be connected in the hosted application.</p>
+      <p class="safety" id="dialog-safety"><strong>Safety:</strong> Email verification confirms a contact channel, not identity, student status, ownership or the legitimacy of a rental.</p>
+      <div class="dialog-actions"><button class="close" type="button">Got it</button></div>
+    </div>
+  </dialog>
+
+  <script>
+    const city = document.querySelector('#city');
+    const community = document.querySelector('#community');
+    const kindButtons = [...document.querySelectorAll('[data-kind]')];
+    const cards = [...document.querySelectorAll('.listing-card')];
+    const count = document.querySelector('#count');
+    const empty = document.querySelector('#empty');
+    const grid = document.querySelector('#grid');
+    let kind = 'all';
+
+    function filterListings() {
+      let visible = 0;
+      cards.forEach((card) => {
+        const match = (city.value === 'all' || card.dataset.city === city.value)
+          && (community.value === 'all' || card.dataset.community === community.value)
+          && (kind === 'all' || card.dataset.kind === kind);
+        card.hidden = !match;
+        if (match) visible += 1;
+      });
+      count.textContent = visible;
+      grid.style.display = visible ? 'grid' : 'none';
+      empty.style.display = visible ? 'none' : 'block';
+    }
+
+    city.addEventListener('change', filterListings);
+    community.addEventListener('change', filterListings);
+    kindButtons.forEach((button) => button.addEventListener('click', () => {
+      kind = button.dataset.kind;
+      kindButtons.forEach((choice) => choice.setAttribute('aria-pressed', String(choice === button)));
+      filterListings();
+    }));
+    document.querySelector('#clear').addEventListener('click', () => {
+      city.value = 'all'; community.value = 'all'; kind = 'all';
+      kindButtons.forEach((choice) => choice.setAttribute('aria-pressed', String(choice.dataset.kind === 'all')));
+      filterListings();
+    });
+
+    const dialog = document.querySelector('#dialog');
+    const dialogTitle = document.querySelector('#dialog-title');
+    const dialogCopy = document.querySelector('#dialog-copy');
+    const dialogSafety = document.querySelector('#dialog-safety');
+    document.querySelectorAll('[data-demo]').forEach((button) => button.addEventListener('click', () => {
+      dialogTitle.textContent = 'Publishing is coming next.';
+      dialogCopy.textContent = 'This is the public catalogue preview. The production version will let an email-verified member post a room or everyday item using the right fields for each type.';
+      dialogSafety.innerHTML = '<strong>Privacy:</strong> Contact details are not displayed publicly; the hosted app will relay messages after consent.';
+      dialog.showModal();
+    }));
+    document.querySelectorAll('[data-detail]').forEach((button) => button.addEventListener('click', () => {
+      const room = button.dataset.detail === 'room';
+      dialogTitle.textContent = room ? 'Room handovers need extra care.' : 'A simple, safer item handover.';
+      dialogCopy.textContent = room
+        ? 'The production detail page will show rent, availability, stay length, deposit and landlord or agency involvement — without claiming the room is guaranteed.'
+        : 'The production detail page will show condition, price, pickup area and availability, then relay a message without exposing either email publicly.';
+      dialogSafety.innerHTML = room
+        ? '<strong>Housing safety:</strong> View the room, verify the landlord or agency, read the contract, and do not pay merely to reserve a viewing.'
+        : '<strong>Item safety:</strong> Inspect the item in a public place and avoid advance payment to unknown people.';
+      dialog.showModal();
+    }));
+    document.querySelector('.close').addEventListener('click', () => dialog.close());
+    dialog.addEventListener('click', (event) => { if (event.target === dialog) dialog.close(); });
+  </script>
+</body>
+</html>
