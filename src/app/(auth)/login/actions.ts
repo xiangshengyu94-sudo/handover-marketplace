@@ -21,6 +21,7 @@ import {
 import { sanitizeReturnTo } from "@/lib/auth/return-to";
 import { readPublicEnv, readServerEnv } from "@/lib/env";
 import type { OtpActionState } from "@/lib/auth/form-state";
+import { captureOperationalFailure } from "@/lib/monitoring/sentry";
 import { createClient } from "@/lib/supabase/server";
 
 const BROWSER_BINDING_COOKIE = "handover-browser-binding";
@@ -140,10 +141,19 @@ export async function requestOtpAction(
   }
 
   const client = await createClient();
-  await client.auth.signInWithOtp({
+  const { error: otpError } = await client.auth.signInWithOtp({
     email,
     options: { shouldCreateUser: true },
   });
+  if (otpError) {
+    captureOperationalFailure("otp-delivery-failure-rate");
+    return {
+      step: "email",
+      email,
+      returnTo,
+      error: "Sign-in is temporarily unavailable. Try again shortly.",
+    };
+  }
 
   return {
     step: "code",

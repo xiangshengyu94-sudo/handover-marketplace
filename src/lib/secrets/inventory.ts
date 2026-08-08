@@ -24,6 +24,18 @@ export const SECRET_INVENTORY = [
     rotationOwner: "infrastructure-owner",
   },
   {
+    variable: "CRON_RETENTION_SECRET",
+    purpose: "scheduled-retention",
+    exposure: "server-only",
+    rotationOwner: "database-owner",
+  },
+  {
+    variable: "MONITORING_CANARY_SECRET",
+    purpose: "monitoring-canary",
+    exposure: "server-only",
+    rotationOwner: "infrastructure-owner",
+  },
+  {
     variable: "ASSISTED_CLAIM_HMAC_SECRET",
     purpose: "assisted-claim-signing",
     exposure: "server-only",

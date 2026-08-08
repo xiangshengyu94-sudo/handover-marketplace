@@ -18,6 +18,8 @@ describe("secret inventory", () => {
         "transactional-email",
         "webhook-verification",
         "scheduled-dispatch",
+        "scheduled-retention",
+        "monitoring-canary",
         "assisted-claim-signing",
       ]),
     );

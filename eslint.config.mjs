@@ -33,6 +33,7 @@ export default defineConfig([
       "src/lib/moderation/actions.ts",
       "src/lib/roles/manage.ts",
       "src/lib/privacy/delete-account.ts",
+      "src/lib/privacy/export.ts",
       "src/lib/retention/**/*.ts",
     ],
     rules: { "no-restricted-imports": "off" },

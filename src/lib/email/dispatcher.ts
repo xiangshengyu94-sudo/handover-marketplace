@@ -15,6 +15,17 @@ export async function dispatchContactBatch(limit = 10) {
   const outcomes: { id: string; status: "accepted" | "retrying" | "failed" }[] = [];
   for (const row of data ?? []) {
     try {
+      const confirmation = await client.rpc("admin_confirm_contact_dispatch", {
+        p_outbox_id: row.outbox_id,
+        p_lease_token: leaseToken,
+      });
+      if (confirmation.error) {
+        throw new Error("Unable to confirm contact eligibility.");
+      }
+      if (confirmation.data !== true) {
+        outcomes.push({ id: String(row.outbox_id), status: "failed" });
+        continue;
+      }
       const template = renderContactEmail({ listingTitle: String(row.listing_title), message: String(row.message_body) });
       const providerId = await sendContactEmail({ to: String(row.owner_email), replyTo: String(row.sender_email), ...template, idempotencyKey: String(row.idempotency_key), outboxId: String(row.outbox_id) });
       const completed = await client.rpc("admin_mark_contact_accepted", { p_outbox_id: row.outbox_id, p_lease_token: leaseToken, p_provider_email_id: providerId });

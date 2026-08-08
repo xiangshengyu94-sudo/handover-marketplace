@@ -727,7 +727,7 @@ This table preserves the complete 28-item interactive document review. `Applied`
 | 2 | Deleted media may remain reachable through cached public URLs | Applied | Private delivery and measured revocation-SLA tests |
 | 3 | DNS and SMTP readiness block unrelated foundation work | Applied | U1a/U1b checkpoint execution evidence |
 | 4 | Public discovery is blocked by authoring and image work | Applied | Seeded U5a discovery smoke before U5b |
-| 5 | Email matching does not prove original authorship | Deferred | Resolve trustworthy initial author-email evidence |
+| 5 | Email matching does not prove original authorship | Applied | Narrow the claim: operator attestation plus email control authorizes a draft, but does not prove original authorship |
 | 6 | Moderation notifications lack a durable delivery dependency | Applied | Typed outbox retry, replay, and template tests |
 | 7 | Contact dispatcher has no production execution host | Applied | Cron-to-dispatcher authentication, lease, and recovery tests |
 | 8 | Monitoring has no telemetry backend or alert transport | Applied | Sentry ingestion, dashboard, and alert-delivery smoke |
@@ -742,8 +742,8 @@ This table preserves the complete 28-item interactive document review. `Applied`
 | 17 | Member report and anonymous notice entry flows are missing | Applied | Validation, acknowledgment, duplicate, and focus tests |
 | 18 | Contact delivery state has no sender interface | Applied | Queued-through-terminal accessibility journey |
 | 19 | Image processing states are not specified | Applied | Mobile, refresh, retry, replace, quota, and focus tests |
-| 20 | Pilot success metrics have no falsification thresholds | Deferred | Define qualified contact and go/iterate/stop thresholds |
-| 21 | Cities have no independent activation/deactivation gates | Deferred | Define supply, moderation-capacity, and safety gates |
+| 20 | Pilot success metrics have no falsification thresholds | Applied | Use the pre-registered qualified-contact and go/iterate/stop thresholds in the pilot scorecard |
+| 21 | Cities have no independent activation/deactivation gates | Applied | Use the per-city supply, moderation-capacity, safety, deactivation, and reactivation gates |
 | 22 | Taxonomy merge and alias tooling is premature | Applied | Confirm launch excludes merge/alias paths |
 | 23 | Contact retries lack a request-stable intent | Applied | Duplicate HTTP request and legitimate later-message tests |
 | 24 | CAPTCHA treatment is not implementation-mapped | Applied | Distributed-IP/account and provider-failure tests |
@@ -777,18 +777,18 @@ This table preserves the complete 28-item interactive document review. `Applied`
 
 ---
 
-## Deferred / Open Questions
+## Resolved follow-up decisions
 
 ### From 2026-08-07 review
 
-- **Initial author-email evidence may not prove original authorship** — Authorized operator-assisted intake (P1, adversarial-document-reviewer, confidence 75)
+- **Email matching is authorization evidence, not authorship proof** — Authorized operator-assisted intake
 
-  An incorrect or malicious operator can bind a private draft to an unrelated email whose controller later passes OTP and claim checks. Decide what evidence makes the operator's initial author-email assertion trustworthy enough to preserve the promise that only the original author can publish.
+  The product does not claim that email control proves original authorship. An authorized operator attests they have permission and binds a private draft to an email HMAC; the controlling verified account must review and claim or reject it. UI and policy copy disclose this boundary, and operator misuse remains reportable and auditable.
 
-- **Pilot utility needs pre-registered success thresholds** — Success Metrics and Definition of Done (P1, adversarial-document-reviewer, confidence 75)
+- **Pilot utility has pre-registered success thresholds** — Success metrics and definition of done
 
-  The pilot can be described as successful or unsuccessful after results are known unless qualified contact, handover, effort-reduction, and stale-result metrics have baselines and explicit go, iterate, or stop thresholds.
+  `docs/operations/pilot-scorecard.md` defines qualified contact, completed handover, denominators, windows, and go/iterate/stop thresholds. Values are best-judgment pilot defaults and must be reviewed after the first cohort without rewriting the historical result.
 
-- **Each city needs independent activation and deactivation gates** — Multi-city rollout (P1, adversarial-document-reviewer, confidence 75)
+- **Each city has independent activation and deactivation gates** — Multi-city rollout
 
-  A city can become active with too little supply, insufficient moderation capacity, or unresolved local operating conditions. Define per-city inventory, safety, staffing, and rollback thresholds before activating general traffic.
+  `docs/operations/pilot-scorecard.md` requires per-city supply, safety, staffing, provider and restoration evidence; it also defines pause, deactivation, and fresh reactivation gates. No city inherits another city’s approval.

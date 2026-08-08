@@ -64,6 +64,8 @@ export function readServerEnv(source: EnvironmentSource = process.env) {
     resendWebhookSecret: required(source, "RESEND_WEBHOOK_SECRET"),
     emailFrom: required(source, "EMAIL_FROM"),
     cronDispatchSecret: required(source, "CRON_DISPATCH_SECRET"),
+    cronRetentionSecret: required(source, "CRON_RETENTION_SECRET"),
+    monitoringCanarySecret: required(source, "MONITORING_CANARY_SECRET"),
     assistedClaimHmacSecret: required(source, "ASSISTED_CLAIM_HMAC_SECRET"),
     abuseHashSecret: required(source, "ABUSE_HASH_SECRET"),
     captchaSecretKey: required(source, "CAPTCHA_SECRET_KEY"),

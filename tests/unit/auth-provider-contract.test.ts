@@ -10,6 +10,11 @@ const emailChangeTemplate = readFileSync(
   "supabase/templates/email-change.html",
   "utf8",
 );
+const emailChangedNotification = readFileSync(
+  "supabase/templates/email-changed-notification.html",
+  "utf8",
+);
+const loginActions = readFileSync("src/app/(auth)/login/actions.ts", "utf8");
 
 describe("authentication provider contract", () => {
   it("matches the six-digit, ten-minute browser flow", () => {
@@ -24,5 +29,15 @@ describe("authentication provider contract", () => {
     expect(emailChangeTemplate).toContain("{{ .ConfirmationURL }}");
     expect(config).toContain("[auth.email.notification.email_changed]");
     expect(config).toContain("enabled = true");
+    expect(config).toContain(
+      'content_path = "./templates/email-changed-notification.html"',
+    );
+    expect(emailChangedNotification).toContain("{{ .OldEmail }}");
+  });
+
+  it("does not advance to code entry when the OTP provider rejects a request", () => {
+    expect(loginActions).toContain("const { error: otpError } = await client.auth.signInWithOtp");
+    expect(loginActions).toContain('captureOperationalFailure("otp-delivery-failure-rate")');
+    expect(loginActions).toMatch(/if \(otpError\)[\s\S]+step: "email"/);
   });
 });

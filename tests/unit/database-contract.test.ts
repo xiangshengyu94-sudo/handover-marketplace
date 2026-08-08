@@ -33,6 +33,10 @@ const moderationMigration = readFileSync(
   "supabase/migrations/202608070008_moderation_and_taxonomy.sql",
   "utf8",
 );
+const retentionMigration = readFileSync(
+  "supabase/migrations/202608070009_retention_and_privacy.sql",
+  "utf8",
+);
 
 const exposedTables = [
   "profiles",
@@ -81,7 +85,7 @@ describe("database migration contract", () => {
   });
 
   it("pins the search path on every security-definer helper", () => {
-    const securityDefinerFunctions = [accessMigration, authMigration, authoringMigration, lifecycleMigration, contactMigration, assistedMigration, moderationMigration].flatMap(
+    const securityDefinerFunctions = [accessMigration, authMigration, authoringMigration, lifecycleMigration, contactMigration, assistedMigration, moderationMigration, retentionMigration].flatMap(
       (migration) =>
         migration
           .split(/create(?: or replace)? function/)
@@ -95,7 +99,7 @@ describe("database migration contract", () => {
   });
 
   it("contains balanced PostgreSQL dollar-quoted bodies", () => {
-    for (const migration of [coreMigration, accessMigration, authMigration, authoringMigration, lifecycleMigration, contactMigration, assistedMigration, moderationMigration]) {
+    for (const migration of [coreMigration, accessMigration, authMigration, authoringMigration, lifecycleMigration, contactMigration, assistedMigration, moderationMigration, retentionMigration]) {
       expect(migration.match(/\$\$/g)?.length ?? 0).toSatisfy(
         (count: number) => count % 2 === 0,
       );
@@ -205,5 +209,163 @@ describe("database migration contract", () => {
   it("revokes member capability while an email change is pending", () => {
     expect(authMigration).toContain("u.email_confirmed_at is not null");
     expect(authMigration).toContain("u.new_email is null");
+  });
+
+  it("keeps privacy receipts and retention state service-only", () => {
+    for (const table of [
+      "privacy_requests",
+      "job_state",
+      "storage_cleanup_outbox",
+    ]) {
+      expect(retentionMigration).toContain(
+        `alter table private.${table} force row level security;`,
+      );
+    }
+    expect(retentionMigration).toContain(
+      "revoke all on private.privacy_requests, private.job_state,",
+    );
+    expect(retentionMigration).not.toMatch(
+      /grant all on private\.(?:privacy_requests|job_state|storage_cleanup_outbox) to (?:anon|authenticated)/,
+    );
+  });
+
+  it("makes expiry, account hiding, and cleanup auditable and idempotent", () => {
+    expect(retentionMigration).toContain(
+      "update public.listings l set status='expired',version=l.version+1",
+    );
+    expect(retentionMigration).toContain("'account-deletion' from changed");
+    expect(retentionMigration).toContain("insert into private.role_audit");
+    expect(retentionMigration).toContain("on conflict do nothing");
+    expect(retentionMigration).toContain("body_purged_at is null");
+    expect(retentionMigration).toContain("interval '30 days'");
+    expect(retentionMigration).toContain("interval '24 hours'");
+    expect(retentionMigration).toContain("interval '7 days'");
+    expect(retentionMigration).toContain("status='partial'");
+    expect(retentionMigration).toContain("admin_lease_privacy_cleanups");
+    expect(retentionMigration).toContain(
+      "admin_record_retention_cleanup_failure",
+    );
+    expect(retentionMigration).toContain("for update skip locked limit 500");
+    expect(retentionMigration).toContain("listing_images_retention_idx");
+    expect(retentionMigration).toContain("'hasMore'");
+  });
+
+  it("durably coordinates image deletion with private Storage cleanup", () => {
+    expect(retentionMigration).toContain(
+      "create table private.storage_cleanup_outbox",
+    );
+    expect(retentionMigration).toContain(
+      "create trigger listing_images_enqueue_storage_cleanup",
+    );
+    expect(retentionMigration).toContain(
+      "values ('listing-staging',old.storage_path,old.id)",
+    );
+    expect(retentionMigration).toContain(
+      "values ('listing-media',old.derivative_path,old.id)",
+    );
+    expect(retentionMigration).toContain(
+      "create function public.admin_lease_storage_cleanup",
+    );
+    expect(retentionMigration).toContain(
+      "create function public.admin_finish_storage_cleanup",
+    );
+    expect(retentionMigration).toContain(
+      "where status='deleted'\non conflict(bucket,object_path) do nothing",
+    );
+  });
+
+  it("preserves delivery truth and revalidates contact dispatch", () => {
+    expect(retentionMigration).toContain(
+      "create function public.admin_confirm_contact_dispatch",
+    );
+    expect(retentionMigration).toContain(
+      "and private.contact_dispatch_is_eligible(outbox.id)",
+    );
+    expect(retentionMigration).toContain(
+      "where o.status in ('queued','retrying')",
+    );
+    expect(retentionMigration).not.toMatch(
+      /update private\.contact_outbox o set status='failed',message_body=/,
+    );
+  });
+
+  it("fails exhausted provider cleanup instead of stranding partial work", () => {
+    expect(retentionMigration).toContain(
+      "when cleanup_attempts>=9 then 'failed'",
+    );
+    expect(retentionMigration).toContain("'provider-cleanup-exhausted'");
+    expect(retentionMigration).toContain("values('privacy-cleanup',now(),1");
+  });
+
+  it("tombstones expired assisted drafts and only publishes claimed ownership", () => {
+    expect(retentionMigration).toContain(
+      "claim.status='claimed'\n        and claim.claimant_id=new.owner_id",
+    );
+    expect(retentionMigration).toContain(
+      "create function private.expire_assisted_drafts",
+    );
+    expect(retentionMigration).toContain("title='Expired assisted draft'");
+    expect(retentionMigration).toContain(
+      "perform private.expire_assisted_drafts(now(),1,p_token_hash)",
+    );
+  });
+
+  it("exports kind and taxonomy context without private object paths", () => {
+    const exportFunction = retentionMigration.match(
+      /create function public\.admin_export_user_data[\s\S]*?\nend; \$\$;/,
+    )?.[0] ?? "";
+    for (const field of [
+      "'city'",
+      "'category'",
+      "'organizations'",
+      "'housing'",
+      "'item'",
+      "'images'",
+      "'subtype'",
+      "'condition'",
+    ]) {
+      expect(exportFunction).toContain(field);
+    }
+    expect(exportFunction).not.toContain("storage_path");
+    expect(exportFunction).not.toContain("derivative_path");
+    expect(exportFunction).not.toContain("generation");
+  });
+
+  it("serializes administrator removal and defers retention success", () => {
+    expect(
+      retentionMigration.match(
+        /pg_advisory_xact_lock\(hashtextextended\('handover:administrator-role-lifecycle',0\)\)/g,
+      )?.length,
+    ).toBe(2);
+    const retentionRun = retentionMigration.match(
+      /create function public\.admin_run_retention[\s\S]*?\nend; \$\$;/,
+    )?.[0] ?? "";
+    expect(retentionRun).not.toContain("last_succeeded_at");
+    expect(retentionRun).not.toContain("v_paths");
+    expect(retentionRun).not.toContain("'paths'");
+    expect(retentionRun).not.toContain("storage_path");
+    expect(retentionMigration).toContain(
+      "create function public.admin_finish_retention_run",
+    );
+    const retentionFinish = retentionMigration.match(
+      /create function public\.admin_finish_retention_run[\s\S]*?\nend; \$\$;/,
+    )?.[0] ?? "";
+    expect(retentionFinish).toContain(
+      "where status in ('queued','leased','retrying','failed')",
+    );
+    expect(retentionFinish).toContain(
+      "where request_type='delete' and status in ('partial','failed')",
+    );
+    expect(retentionFinish).toContain("'storageCompleted'");
+    expect(retentionFinish).toContain("'privacyCompleted'");
+    expect(retentionFinish).not.toContain("coalesce(p_result,'{}'::jsonb)");
+    const storageFinish = retentionMigration.match(
+      /create function public\.admin_finish_storage_cleanup[\s\S]*?\nend; \$\$;/,
+    )?.[0] ?? "";
+    const privacyFinish = retentionMigration.match(
+      /create function public\.admin_finish_privacy_cleanup_retry[\s\S]*?\nend; \$\$;/,
+    )?.[0] ?? "";
+    expect(storageFinish).not.toContain("'cleanupId'");
+    expect(privacyFinish).not.toContain("'requestId'");
   });
 });

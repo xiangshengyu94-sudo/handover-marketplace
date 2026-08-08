@@ -12,6 +12,7 @@ export const PRIVILEGED_IMPORT_ALLOWLIST = [
   "src/lib/moderation/actions.ts",
   "src/lib/roles/manage.ts",
   "src/lib/privacy/delete-account.ts",
+  "src/lib/privacy/export.ts",
   "src/lib/retention/cleanup.ts",
 ] as const;
 

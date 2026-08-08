@@ -288,6 +288,13 @@ button:disabled { cursor: wait; opacity: 0.68; }
 .lifecycle-actions label { display: grid; gap: 0.2rem; color: var(--muted); font-size: 0.75rem; font-weight: 700; }
 .lifecycle-actions input { min-height: 2.7rem; padding: 0.5rem; border: 1px solid rgb(24 35 29 / 0.2); border-radius: 0.65rem; }
 .button-danger { min-height: 3rem; padding: 0.7rem 1rem; border: 1px solid #a43222; border-radius: 999px; color: #922719; background: transparent; font-weight: 750; }
+.privacy-controls { display: grid; gap: 1.25rem; margin-top: 2rem; }
+.privacy-controls section { padding: clamp(1.25rem, 4vw, 2rem); border: 1px solid rgb(24 35 29 / 0.14); border-radius: 1.1rem; background: var(--surface); }
+.privacy-controls section h2 { margin: 0; }
+.privacy-controls section p { color: var(--muted); line-height: 1.55; }
+.privacy-controls .danger-zone { border-color: rgb(164 50 34 / 0.35); background: #fff8f5; }
+.danger-zone label { display: grid; max-width: 22rem; gap: 0.5rem; margin: 1rem 0; font-weight: 750; }
+.danger-zone input { min-height: 3rem; padding: 0.7rem 0.85rem; border: 1px solid rgb(164 50 34 / 0.4); border-radius: 0.7rem; background: white; }
 .dashboard-notice { padding: 1rem; border-radius: 0.8rem; background: var(--context); }
 .claim-page { padding: clamp(1.25rem, 5vw, 5rem) 1rem; }
 .claim-card { display: grid; width: min(52rem, 100%); gap: 1.5rem; margin: 0 auto; padding: clamp(1.4rem, 5vw, 3.5rem); border: 1px solid rgb(24 35 29 / 0.13); border-radius: 1.5rem; background: var(--surface); box-shadow: 0 1.5rem 5rem rgb(41 55 47 / 0.1); }

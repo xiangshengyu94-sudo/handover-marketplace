@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
+import Link from "next/link";
 
 import { logoutAction } from "@/app/(auth)/login/actions";
 import { EmailChangeForm } from "@/components/account/email-change-form";
@@ -40,6 +41,7 @@ export default async function AccountPage() {
           <h2>Email settings</h2>
           <EmailChangeForm currentEmail={user.email} pendingEmail={user.newEmail} />
         </div>
+        <div className="account-section"><h2>Privacy controls</h2><p className="form-note">Download your data or request account deletion with a durable receipt.</p><Link className="button-link button-secondary" href="/account/privacy">Open privacy controls</Link></div>
         <form action={logoutAction}>
           <button className="button-quiet" type="submit">Sign out</button>
         </form>
