@@ -39,6 +39,9 @@
     .wordmark { font: 650 1.65rem Georgia, serif; text-decoration: none; }
     .site-header nav { display: flex; align-items: center; gap: .5rem 1.2rem; }
     .site-header nav a { font-weight: 720; text-decoration: none; }
+    .language-picker { display: inline-flex; align-items: center; gap: .45rem; }
+    .language-picker span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+    .language-picker select { min-height: 2.65rem; padding: .55rem 2rem .55rem .72rem; color: var(--ink); border: 1px solid rgba(24, 35, 29, .2); border-radius: 999px; background: rgba(255, 253, 248, .78); font-weight: 720; }
     .nav-cta, .button-link {
       display: inline-flex; min-height: 3rem; align-items: center; justify-content: center;
       padding: .72rem 1rem; border: 1px solid var(--accent); border-radius: 999px;
@@ -113,6 +116,9 @@
     .close { min-height: 2.75rem; padding: .65rem 1rem; border: 1px solid var(--accent); border-radius: 999px; color: white; background: var(--accent); font-weight: 750; }
     @media (max-width: 46rem) {
       .site-header nav a:not(.nav-cta) { display: none; }
+      .site-header { align-items: flex-start; }
+      .site-header nav { flex-wrap: wrap; justify-content: flex-end; }
+      .language-picker { order: 3; }
       .hero, .market-layout { grid-template-columns: 1fr; }
       .hero-side { justify-items: start; }
       .demo-note { max-width: 28rem; text-align: left; }
@@ -128,157 +134,305 @@
   <header class="site-header">
     <a class="wordmark" href="#top">Handover</a>
     <nav aria-label="Primary navigation">
-      <a href="#browse">Browse</a>
-      <a href="#safety">Safety</a>
-      <button class="nav-cta" type="button" data-demo>Post a handover</button>
+      <a href="#browse" data-i18n="nav.browse">Browse</a>
+      <a href="#safety" data-i18n="nav.safety">Safety</a>
+      <label class="language-picker"><span data-i18n="language.label">Language</span>
+        <select id="language" aria-label="Language">
+          <option value="en">English</option>
+          <option value="pl">Polski</option>
+          <option value="it">Italiano</option>
+          <option value="de">Deutsch</option>
+          <option value="es">Español</option>
+        </select>
+      </label>
+      <button class="nav-cta" type="button" data-demo data-i18n="nav.post">Post a handover</button>
     </nav>
   </header>
 
   <main id="top">
     <section class="hero" aria-labelledby="page-title">
       <div class="hero-copy">
-        <p class="eyebrow">Arriving soon? Leaving soon?</p>
-        <h1 id="page-title">Pass useful things forward.</h1>
-        <p class="lede">Rooms and everyday items from international communities, structured in one place instead of scattered across WhatsApp and Facebook groups.</p>
+        <p class="eyebrow" data-i18n="hero.eyebrow">Arriving soon? Leaving soon?</p>
+        <h1 id="page-title" data-i18n="hero.title">Pass useful things forward.</h1>
+        <p class="lede" data-i18n="hero.lede">Rooms and everyday items from international communities, structured in one place instead of scattered across WhatsApp and Facebook groups.</p>
       </div>
       <div class="hero-side">
-        <a class="button-link" href="#browse">Explore handovers</a>
-        <p class="demo-note">Public preview — sample listings only. No account is needed to explore.</p>
+        <a class="button-link" href="#browse" data-i18n="hero.cta">Explore handovers</a>
+        <p class="demo-note" data-i18n="hero.note">Public preview — sample listings only. No account is needed to explore.</p>
       </div>
     </section>
 
     <section class="market-layout" id="browse" aria-label="Browse handovers">
       <aside class="filters" aria-label="Listing filters">
         <div class="filter-form">
-          <div class="filter-heading"><h2>Find your fit</h2><button class="clear" id="clear" type="button">Clear</button></div>
-          <label class="field">City
+          <div class="filter-heading"><h2 data-i18n="filter.title">Find your fit</h2><button class="clear" id="clear" type="button" data-i18n="filter.clear">Clear</button></div>
+          <label class="field"><span data-i18n="filter.city">City</span>
             <select id="city">
-              <option value="all">All cities</option>
+              <option value="all" data-i18n="filter.cityAll">All cities</option>
               <option value="valencia">Valencia</option>
               <option value="barcelona">Barcelona</option>
               <option value="madrid">Madrid</option>
             </select>
           </label>
-          <label class="field">Community
+          <label class="field"><span data-i18n="filter.community">Community</span>
             <select id="community">
-              <option value="all">All communities</option>
+              <option value="all" data-i18n="filter.communityAll">All communities</option>
               <option value="mercuri">MERCURI</option>
               <option value="erasmus">Erasmus</option>
-              <option value="international">International students</option>
+              <option value="international" data-i18n="filter.international">International students</option>
             </select>
           </label>
-          <div class="field">Resource type
+          <div class="field"><span data-i18n="filter.resource">Resource type</span>
             <div class="segmented" role="group" aria-label="Resource type">
-              <button type="button" data-kind="all" aria-pressed="true">All</button>
-              <button type="button" data-kind="housing" aria-pressed="false">Rooms</button>
-              <button type="button" data-kind="item" aria-pressed="false">Items</button>
+              <button type="button" data-kind="all" aria-pressed="true" data-i18n="filter.all">All</button>
+              <button type="button" data-kind="housing" aria-pressed="false" data-i18n="filter.rooms">Rooms</button>
+              <button type="button" data-kind="item" aria-pressed="false" data-i18n="filter.items">Items</button>
             </div>
           </div>
         </div>
-        <p class="filter-result" aria-live="polite"><span id="count">6</span> handovers found</p>
+        <p class="filter-result" id="result-message" aria-live="polite">6 handovers found</p>
       </aside>
 
       <div class="results">
         <header class="results-header">
-          <div><p class="eyebrow">Current handovers</p><h2>Arrive lighter.</h2></div>
-          <span>Updated today</span>
+          <div><p class="eyebrow" data-i18n="results.eyebrow">Current handovers</p><h2 data-i18n="results.title">Arrive lighter.</h2></div>
+          <span data-i18n="results.updated">Updated today</span>
         </header>
         <div class="listing-grid" id="grid">
           <article class="listing-card" data-city="valencia" data-community="mercuri" data-kind="housing">
-            <div class="card-art"><span class="art-icon" aria-hidden="true">☀️</span><span class="verified">✓ Email verified</span></div>
+            <div class="card-art"><span class="art-icon" aria-hidden="true">☀️</span><span class="verified" data-i18n="common.verified">✓ Email verified</span></div>
             <div class="card-body">
-              <div class="tags"><span class="tag context">Valencia</span><span class="tag context">MERCURI</span><span class="tag resource">Room</span></div>
-              <h3>Sunny room near Blasco Ibáñez</h3>
-              <p>Furnished room in a shared flat, available when I leave. The landlord must approve the next tenant.</p>
-              <dl class="meta"><div><dt>Available</dt><dd>1 September</dd></div><div><dt>Stay</dt><dd>5–10 months</dd></div></dl>
-              <div class="card-footer"><strong>€410 / month</strong><button class="details" type="button" data-detail="room">View details</button></div>
+              <div class="tags"><span class="tag context">Valencia</span><span class="tag context">MERCURI</span><span class="tag resource" data-i18n="category.room">Room</span></div>
+              <h3 data-i18n="listing.room1.title">Sunny room near Blasco Ibáñez</h3>
+              <p data-i18n="listing.room1.description">Furnished room in a shared flat, available when I leave. The landlord must approve the next tenant.</p>
+              <dl class="meta"><div><dt data-i18n="meta.available">Available</dt><dd data-i18n="listing.room1.available">1 September</dd></div><div><dt data-i18n="meta.stay">Stay</dt><dd data-i18n="listing.room1.stay">5–10 months</dd></div></dl>
+              <div class="card-footer"><strong data-i18n="listing.room1.price">€410 / month</strong><button class="details" type="button" data-detail="room" data-i18n="common.details">View details</button></div>
             </div>
           </article>
 
           <article class="listing-card" data-city="valencia" data-community="erasmus" data-kind="item">
-            <div class="card-art item"><span class="art-icon" aria-hidden="true">🚲</span><span class="verified">✓ Email verified</span></div>
+            <div class="card-art item"><span class="art-icon" aria-hidden="true">🚲</span><span class="verified" data-i18n="common.verified">✓ Email verified</span></div>
             <div class="card-body">
-              <div class="tags"><span class="tag context">Valencia</span><span class="tag context">Erasmus</span><span class="tag resource">Bicycle</span></div>
-              <h3>City bike with lock and lights</h3>
-              <p>Reliable everyday bike, recently serviced. Includes a U-lock, front basket and spare inner tube.</p>
-              <dl class="meta"><div><dt>Pickup</dt><dd>Ruzafa</dd></div><div><dt>Condition</dt><dd>Good</dd></div></dl>
-              <div class="card-footer"><strong>€85</strong><button class="details" type="button" data-detail="bike">View details</button></div>
+              <div class="tags"><span class="tag context">Valencia</span><span class="tag context">Erasmus</span><span class="tag resource" data-i18n="category.bicycle">Bicycle</span></div>
+              <h3 data-i18n="listing.bike.title">City bike with lock and lights</h3>
+              <p data-i18n="listing.bike.description">Reliable everyday bike, recently serviced. Includes a U-lock, front basket and spare inner tube.</p>
+              <dl class="meta"><div><dt data-i18n="meta.pickup">Pickup</dt><dd>Ruzafa</dd></div><div><dt data-i18n="meta.condition">Condition</dt><dd data-i18n="condition.good">Good</dd></div></dl>
+              <div class="card-footer"><strong>€85</strong><button class="details" type="button" data-detail="bike" data-i18n="common.details">View details</button></div>
             </div>
           </article>
 
           <article class="listing-card" data-city="barcelona" data-community="international" data-kind="housing">
-            <div class="card-art"><span class="art-icon" aria-hidden="true">🏡</span><span class="verified">✓ Email verified</span></div>
+            <div class="card-art"><span class="art-icon" aria-hidden="true">🏡</span><span class="verified" data-i18n="common.verified">✓ Email verified</span></div>
             <div class="card-body">
-              <div class="tags"><span class="tag context">Barcelona</span><span class="tag context">International</span><span class="tag resource">Room</span></div>
-              <h3>Quiet room in Gràcia flatshare</h3>
-              <p>Interior room in a three-person flat with a shared terrace. Contract and deposit handled by the agency.</p>
-              <dl class="meta"><div><dt>Available</dt><dd>15 August</dd></div><div><dt>Stay</dt><dd>6+ months</dd></div></dl>
-              <div class="card-footer"><strong>€590 / month</strong><button class="details" type="button" data-detail="room">View details</button></div>
+              <div class="tags"><span class="tag context">Barcelona</span><span class="tag context" data-i18n="tag.international">International</span><span class="tag resource" data-i18n="category.room">Room</span></div>
+              <h3 data-i18n="listing.room2.title">Quiet room in Gràcia flatshare</h3>
+              <p data-i18n="listing.room2.description">Interior room in a three-person flat with a shared terrace. Contract and deposit handled by the agency.</p>
+              <dl class="meta"><div><dt data-i18n="meta.available">Available</dt><dd data-i18n="listing.room2.available">15 August</dd></div><div><dt data-i18n="meta.stay">Stay</dt><dd data-i18n="listing.room2.stay">6+ months</dd></div></dl>
+              <div class="card-footer"><strong data-i18n="listing.room2.price">€590 / month</strong><button class="details" type="button" data-detail="room" data-i18n="common.details">View details</button></div>
             </div>
           </article>
 
           <article class="listing-card" data-city="madrid" data-community="erasmus" data-kind="item">
-            <div class="card-art item"><span class="art-icon" aria-hidden="true">🪑</span><span class="verified">✓ Email verified</span></div>
+            <div class="card-art item"><span class="art-icon" aria-hidden="true">🪑</span><span class="verified" data-i18n="common.verified">✓ Email verified</span></div>
             <div class="card-body">
-              <div class="tags"><span class="tag context">Madrid</span><span class="tag context">Erasmus</span><span class="tag resource">Furniture</span></div>
-              <h3>Desk, chair and reading lamp</h3>
-              <p>A compact study set that fits a student room. Prefer to hand over everything together.</p>
-              <dl class="meta"><div><dt>Pickup</dt><dd>Moncloa</dd></div><div><dt>Condition</dt><dd>Very good</dd></div></dl>
-              <div class="card-footer"><strong>€40</strong><button class="details" type="button" data-detail="item">View details</button></div>
+              <div class="tags"><span class="tag context">Madrid</span><span class="tag context">Erasmus</span><span class="tag resource" data-i18n="category.furniture">Furniture</span></div>
+              <h3 data-i18n="listing.desk.title">Desk, chair and reading lamp</h3>
+              <p data-i18n="listing.desk.description">A compact study set that fits a student room. Prefer to hand over everything together.</p>
+              <dl class="meta"><div><dt data-i18n="meta.pickup">Pickup</dt><dd>Moncloa</dd></div><div><dt data-i18n="meta.condition">Condition</dt><dd data-i18n="condition.veryGood">Very good</dd></div></dl>
+              <div class="card-footer"><strong>€40</strong><button class="details" type="button" data-detail="item" data-i18n="common.details">View details</button></div>
             </div>
           </article>
 
           <article class="listing-card" data-city="valencia" data-community="international" data-kind="item">
-            <div class="card-art item"><span class="art-icon" aria-hidden="true">🍳</span><span class="verified">✓ Email verified</span></div>
+            <div class="card-art item"><span class="art-icon" aria-hidden="true">🍳</span><span class="verified" data-i18n="common.verified">✓ Email verified</span></div>
             <div class="card-body">
-              <div class="tags"><span class="tag context">Valencia</span><span class="tag context">International</span><span class="tag resource">Kitchen</span></div>
-              <h3>Starter kitchen box</h3>
-              <p>Pan, pot, plates, mugs and cutlery for one person. Clean and ready for the next kitchen.</p>
-              <dl class="meta"><div><dt>Pickup</dt><dd>Benimaclet</dd></div><div><dt>Condition</dt><dd>Used</dd></div></dl>
-              <div class="card-footer"><strong>Free</strong><button class="details" type="button" data-detail="item">View details</button></div>
+              <div class="tags"><span class="tag context">Valencia</span><span class="tag context" data-i18n="tag.international">International</span><span class="tag resource" data-i18n="category.kitchen">Kitchen</span></div>
+              <h3 data-i18n="listing.kitchen.title">Starter kitchen box</h3>
+              <p data-i18n="listing.kitchen.description">Pan, pot, plates, mugs and cutlery for one person. Clean and ready for the next kitchen.</p>
+              <dl class="meta"><div><dt data-i18n="meta.pickup">Pickup</dt><dd>Benimaclet</dd></div><div><dt data-i18n="meta.condition">Condition</dt><dd data-i18n="condition.used">Used</dd></div></dl>
+              <div class="card-footer"><strong data-i18n="common.free">Free</strong><button class="details" type="button" data-detail="item" data-i18n="common.details">View details</button></div>
             </div>
           </article>
 
           <article class="listing-card" data-city="madrid" data-community="mercuri" data-kind="housing">
-            <div class="card-art"><span class="art-icon" aria-hidden="true">🪟</span><span class="verified">✓ Email verified</span></div>
+            <div class="card-art"><span class="art-icon" aria-hidden="true">🪟</span><span class="verified" data-i18n="common.verified">✓ Email verified</span></div>
             <div class="card-body">
-              <div class="tags"><span class="tag context">Madrid</span><span class="tag context">MERCURI</span><span class="tag resource">Room</span></div>
-              <h3>Room by Ciudad Universitaria</h3>
-              <p>Bright room with desk and wardrobe. This is an introduction to the current flatmates, not a rental guarantee.</p>
-              <dl class="meta"><div><dt>Available</dt><dd>1 October</dd></div><div><dt>Stay</dt><dd>Semester</dd></div></dl>
-              <div class="card-footer"><strong>€520 / month</strong><button class="details" type="button" data-detail="room">View details</button></div>
+              <div class="tags"><span class="tag context">Madrid</span><span class="tag context">MERCURI</span><span class="tag resource" data-i18n="category.room">Room</span></div>
+              <h3 data-i18n="listing.room3.title">Room by Ciudad Universitaria</h3>
+              <p data-i18n="listing.room3.description">Bright room with desk and wardrobe. This is an introduction to the current flatmates, not a rental guarantee.</p>
+              <dl class="meta"><div><dt data-i18n="meta.available">Available</dt><dd data-i18n="listing.room3.available">1 October</dd></div><div><dt data-i18n="meta.stay">Stay</dt><dd data-i18n="listing.room3.stay">Semester</dd></div></dl>
+              <div class="card-footer"><strong data-i18n="listing.room3.price">€520 / month</strong><button class="details" type="button" data-detail="room" data-i18n="common.details">View details</button></div>
             </div>
           </article>
         </div>
-        <div class="empty" id="empty"><h3>No handovers match yet.</h3><p>Try another city, community, or resource type.</p></div>
+        <div class="empty" id="empty"><h3 data-i18n="empty.title">No handovers match yet.</h3><p data-i18n="empty.text">Try another city, community, or resource type.</p></div>
       </div>
     </section>
 
     <section class="promise-grid" id="safety" aria-label="How Handover works">
-      <article class="promise"><strong>One place, less noise</strong><p>Turn scattered group messages into structured, searchable listings with city and organization tags.</p></article>
-      <article class="promise"><strong>Right fields for each handover</strong><p>Rooms and everyday items use different details, categories and safety guidance.</p></article>
-      <article class="promise"><strong>Contactable, not “student certified”</strong><p>“Email verified” only confirms a contact channel. Always verify the person, room and item yourself.</p></article>
+      <article class="promise"><strong data-i18n="promise.oneTitle">One place, less noise</strong><p data-i18n="promise.oneText">Turn scattered group messages into structured, searchable listings with city and organization tags.</p></article>
+      <article class="promise"><strong data-i18n="promise.twoTitle">Right fields for each handover</strong><p data-i18n="promise.twoText">Rooms and everyday items use different details, categories and safety guidance.</p></article>
+      <article class="promise"><strong data-i18n="promise.threeTitle">Contactable, not “student certified”</strong><p data-i18n="promise.threeText">“Email verified” only confirms a contact channel. Always verify the person, room and item yourself.</p></article>
     </section>
   </main>
 
-  <footer class="page-footer"><span>© 2026 Handover — a public product preview</span><span>Never send money before checking the room, contract or item.</span></footer>
+  <footer class="page-footer"><span data-i18n="footer.preview">© 2026 Handover — a public product preview</span><span data-i18n="footer.safety">Never send money before checking the room, contract or item.</span></footer>
 
   <dialog id="dialog" aria-labelledby="dialog-title">
     <div class="dialog-body">
-      <p class="eyebrow">Product preview</p>
-      <h2 id="dialog-title">The full handover flow is next.</h2>
-      <p id="dialog-copy">This public page demonstrates the catalogue, tags and separate room/item structure. Account, publishing and contact delivery will be connected in the hosted application.</p>
-      <p class="safety" id="dialog-safety"><strong>Safety:</strong> Email verification confirms a contact channel, not identity, student status, ownership or the legitimacy of a rental.</p>
-      <div class="dialog-actions"><button class="close" type="button">Got it</button></div>
+      <p class="eyebrow" data-i18n="dialog.preview">Product preview</p>
+      <h2 id="dialog-title" data-i18n="dialog.initialTitle">The full handover flow is next.</h2>
+      <p id="dialog-copy" data-i18n="dialog.initialCopy">This public page demonstrates the catalogue, tags and separate room/item structure. Account, publishing and contact delivery will be connected in the hosted application.</p>
+      <p class="safety" id="dialog-safety" data-i18n-html="dialog.initialSafety"><strong>Safety:</strong> Email verification confirms a contact channel, not identity, student status, ownership or the legitimacy of a rental.</p>
+      <div class="dialog-actions"><button class="close" type="button" data-i18n="dialog.close">Got it</button></div>
     </div>
   </dialog>
 
   <script>
+    const translations = {
+      en: {
+        "page.title": "Handover — Pass useful things forward",
+        "nav.label": "Primary navigation", "nav.browse": "Browse", "nav.safety": "Safety", "nav.post": "Post a handover", "language.label": "Language",
+        "hero.eyebrow": "Arriving soon? Leaving soon?", "hero.title": "Pass useful things forward.", "hero.lede": "Rooms and everyday items from international communities, structured in one place instead of scattered across WhatsApp and Facebook groups.", "hero.cta": "Explore handovers", "hero.note": "Public preview — sample listings only. No account is needed to explore.",
+        "filter.title": "Find your fit", "filter.clear": "Clear", "filter.city": "City", "filter.cityAll": "All cities", "filter.community": "Community", "filter.communityAll": "All communities", "filter.international": "International students", "filter.resource": "Resource type", "filter.all": "All", "filter.rooms": "Rooms", "filter.items": "Items", "filter.found": "{count} handovers found", "filter.aria": "Listing filters", "filter.resourceAria": "Resource type",
+        "results.eyebrow": "Current handovers", "results.title": "Arrive lighter.", "results.updated": "Updated today", "results.aria": "Browse handovers",
+        "common.verified": "✓ Email verified", "common.details": "View details", "common.free": "Free",
+        "category.room": "Room", "category.bicycle": "Bicycle", "category.furniture": "Furniture", "category.kitchen": "Kitchen", "tag.international": "International",
+        "meta.available": "Available", "meta.stay": "Stay", "meta.pickup": "Pickup", "meta.condition": "Condition", "condition.good": "Good", "condition.veryGood": "Very good", "condition.used": "Used",
+        "listing.room1.title": "Sunny room near Blasco Ibáñez", "listing.room1.description": "Furnished room in a shared flat, available when I leave. The landlord must approve the next tenant.", "listing.room1.available": "1 September", "listing.room1.stay": "5–10 months", "listing.room1.price": "€410 / month",
+        "listing.bike.title": "City bike with lock and lights", "listing.bike.description": "Reliable everyday bike, recently serviced. Includes a U-lock, front basket and spare inner tube.",
+        "listing.room2.title": "Quiet room in Gràcia flatshare", "listing.room2.description": "Interior room in a three-person flat with a shared terrace. Contract and deposit handled by the agency.", "listing.room2.available": "15 August", "listing.room2.stay": "6+ months", "listing.room2.price": "€590 / month",
+        "listing.desk.title": "Desk, chair and reading lamp", "listing.desk.description": "A compact study set that fits a student room. Prefer to hand over everything together.",
+        "listing.kitchen.title": "Starter kitchen box", "listing.kitchen.description": "Pan, pot, plates, mugs and cutlery for one person. Clean and ready for the next kitchen.",
+        "listing.room3.title": "Room by Ciudad Universitaria", "listing.room3.description": "Bright room with desk and wardrobe. This is an introduction to the current flatmates, not a rental guarantee.", "listing.room3.available": "1 October", "listing.room3.stay": "Semester", "listing.room3.price": "€520 / month",
+        "empty.title": "No handovers match yet.", "empty.text": "Try another city, community, or resource type.",
+        "promise.aria": "How Handover works", "promise.oneTitle": "One place, less noise", "promise.oneText": "Turn scattered group messages into structured, searchable listings with city and organization tags.", "promise.twoTitle": "Right fields for each handover", "promise.twoText": "Rooms and everyday items use different details, categories and safety guidance.", "promise.threeTitle": "Contactable, not ‘student certified’", "promise.threeText": "‘Email verified’ only confirms a contact channel. Always verify the person, room and item yourself.",
+        "footer.preview": "© 2026 Handover — a public product preview", "footer.safety": "Never send money before checking the room, contract or item.",
+        "dialog.preview": "Product preview", "dialog.initialTitle": "The full handover flow is next.", "dialog.initialCopy": "This public page demonstrates the catalogue, tags and separate room/item structure. Account, publishing and contact delivery will be connected in the hosted application.", "dialog.initialSafety": "<strong>Safety:</strong> Email verification confirms a contact channel, not identity, student status, ownership or the legitimacy of a rental.", "dialog.close": "Got it",
+        "dialog.postTitle": "Publishing is coming next.", "dialog.postCopy": "This is the public catalogue preview. The production version will let an email-verified member post a room or everyday item using the right fields for each type.", "dialog.postSafety": "<strong>Privacy:</strong> Contact details are not displayed publicly; the hosted app will relay messages after consent.",
+        "dialog.roomTitle": "Room handovers need extra care.", "dialog.roomCopy": "The production detail page will show rent, availability, stay length, deposit and landlord or agency involvement — without claiming the room is guaranteed.", "dialog.roomSafety": "<strong>Housing safety:</strong> View the room, verify the landlord or agency, read the contract, and do not pay merely to reserve a viewing.",
+        "dialog.itemTitle": "A simple, safer item handover.", "dialog.itemCopy": "The production detail page will show condition, price, pickup area and availability, then relay a message without exposing either email publicly.", "dialog.itemSafety": "<strong>Item safety:</strong> Inspect the item in a public place and avoid advance payment to unknown people."
+      },
+      pl: {
+        "page.title": "Handover — przekaż dalej to, co przydatne",
+        "nav.label": "Główna nawigacja", "nav.browse": "Przeglądaj", "nav.safety": "Bezpieczeństwo", "nav.post": "Dodaj ogłoszenie", "language.label": "Język",
+        "hero.eyebrow": "Wkrótce przyjeżdżasz? Niedługo wyjeżdżasz?", "hero.title": "Przekaż dalej to, co przydatne.", "hero.lede": "Pokoje i przedmioty codziennego użytku od międzynarodowych społeczności — uporządkowane w jednym miejscu zamiast rozproszone po grupach WhatsApp i Facebook.", "hero.cta": "Zobacz ogłoszenia", "hero.note": "Publiczna wersja demonstracyjna — tylko przykładowe ogłoszenia. Do przeglądania nie potrzebujesz konta.",
+        "filter.title": "Znajdź coś dla siebie", "filter.clear": "Wyczyść", "filter.city": "Miasto", "filter.cityAll": "Wszystkie miasta", "filter.community": "Społeczność", "filter.communityAll": "Wszystkie społeczności", "filter.international": "Studenci międzynarodowi", "filter.resource": "Rodzaj zasobu", "filter.all": "Wszystko", "filter.rooms": "Pokoje", "filter.items": "Przedmioty", "filter.found": "Znaleziono: {count}", "filter.aria": "Filtry ogłoszeń", "filter.resourceAria": "Rodzaj zasobu",
+        "results.eyebrow": "Aktualne ogłoszenia", "results.title": "Przyjedź z lżejszym bagażem.", "results.updated": "Zaktualizowano dzisiaj", "results.aria": "Przeglądaj ogłoszenia",
+        "common.verified": "✓ E-mail zweryfikowany", "common.details": "Zobacz szczegóły", "common.free": "Za darmo",
+        "category.room": "Pokój", "category.bicycle": "Rower", "category.furniture": "Meble", "category.kitchen": "Kuchnia", "tag.international": "Międzynarodowi",
+        "meta.available": "Dostępne od", "meta.stay": "Okres", "meta.pickup": "Odbiór", "meta.condition": "Stan", "condition.good": "Dobry", "condition.veryGood": "Bardzo dobry", "condition.used": "Używane",
+        "listing.room1.title": "Słoneczny pokój niedaleko Blasco Ibáñez", "listing.room1.description": "Umeblowany pokój we wspólnym mieszkaniu, dostępny po moim wyjeździe. Nową osobę musi zaakceptować właściciel.", "listing.room1.available": "1 września", "listing.room1.stay": "5–10 miesięcy", "listing.room1.price": "410 € / miesiąc",
+        "listing.bike.title": "Rower miejski z zapięciem i światłami", "listing.bike.description": "Niezawodny rower do codziennej jazdy, niedawno po przeglądzie. W zestawie U-lock, przedni koszyk i zapasowa dętka.",
+        "listing.room2.title": "Cichy pokój we wspólnym mieszkaniu w Gràcii", "listing.room2.description": "Pokój od strony podwórza w mieszkaniu dla trzech osób ze wspólnym tarasem. Umowę i kaucję obsługuje agencja.", "listing.room2.available": "15 sierpnia", "listing.room2.stay": "6+ miesięcy", "listing.room2.price": "590 € / miesiąc",
+        "listing.desk.title": "Biurko, krzesło i lampka do czytania", "listing.desk.description": "Kompaktowy zestaw do nauki, który mieści się w pokoju studenckim. Najchętniej przekażę wszystko razem.",
+        "listing.kitchen.title": "Zestaw kuchenny na start", "listing.kitchen.description": "Patelnia, garnek, talerze, kubki i sztućce dla jednej osoby. Czyste i gotowe do kolejnej kuchni.",
+        "listing.room3.title": "Pokój przy Ciudad Universitaria", "listing.room3.description": "Jasny pokój z biurkiem i szafą. To kontakt do obecnych współlokatorów, a nie gwarancja najmu.", "listing.room3.available": "1 października", "listing.room3.stay": "Semestr", "listing.room3.price": "520 € / miesiąc",
+        "empty.title": "Brak pasujących ogłoszeń.", "empty.text": "Spróbuj wybrać inne miasto, społeczność lub rodzaj zasobu.",
+        "promise.aria": "Jak działa Handover", "promise.oneTitle": "Jedno miejsce, mniej chaosu", "promise.oneText": "Zamień rozproszone wiadomości z grup w uporządkowane, przeszukiwalne ogłoszenia oznaczone miastem i organizacją.", "promise.twoTitle": "Właściwe pola dla każdego ogłoszenia", "promise.twoText": "Pokoje i przedmioty mają osobne szczegóły, kategorie i wskazówki bezpieczeństwa.", "promise.threeTitle": "Możliwość kontaktu, nie „certyfikat studenta”", "promise.threeText": "„E-mail zweryfikowany” potwierdza tylko kanał kontaktu. Zawsze samodzielnie sprawdź osobę, pokój i przedmiot.",
+        "footer.preview": "© 2026 Handover — publiczna wersja demonstracyjna", "footer.safety": "Nie wysyłaj pieniędzy przed sprawdzeniem pokoju, umowy lub przedmiotu.",
+        "dialog.preview": "Wersja demonstracyjna", "dialog.initialTitle": "Pełna obsługa przekazania będzie kolejnym krokiem.", "dialog.initialCopy": "Ta publiczna strona pokazuje katalog, tagi i oddzielną strukturę pokoi oraz przedmiotów. Konta, publikowanie i kontakt zostaną połączone w hostowanej aplikacji.", "dialog.initialSafety": "<strong>Bezpieczeństwo:</strong> Weryfikacja e-maila potwierdza kanał kontaktu, a nie tożsamość, status studenta, własność ani legalność najmu.", "dialog.close": "Rozumiem",
+        "dialog.postTitle": "Publikowanie będzie kolejnym krokiem.", "dialog.postCopy": "To publiczna wersja katalogu. W wersji produkcyjnej osoba ze zweryfikowanym e-mailem doda pokój lub przedmiot, korzystając z odpowiednich pól.", "dialog.postSafety": "<strong>Prywatność:</strong> Dane kontaktowe nie będą publiczne; aplikacja przekaże wiadomości po wyrażeniu zgody.",
+        "dialog.roomTitle": "Przekazanie pokoju wymaga dodatkowej ostrożności.", "dialog.roomCopy": "Strona szczegółów pokaże czynsz, dostępność, długość pobytu, kaucję oraz udział właściciela lub agencji — bez obietnicy gwarantowanego najmu.", "dialog.roomSafety": "<strong>Bezpieczeństwo najmu:</strong> Obejrzyj pokój, sprawdź właściciela lub agencję, przeczytaj umowę i nie płać wyłącznie za rezerwację oglądania.",
+        "dialog.itemTitle": "Proste i bezpieczniejsze przekazanie przedmiotu.", "dialog.itemCopy": "Strona szczegółów pokaże stan, cenę, miejsce odbioru i dostępność, a następnie przekaże wiadomość bez publicznego ujawniania adresów e-mail.", "dialog.itemSafety": "<strong>Bezpieczeństwo przedmiotów:</strong> Sprawdź przedmiot w miejscu publicznym i unikaj przedpłat nieznanym osobom."
+      },
+      it: {
+        "page.title": "Handover — passa avanti ciò che è utile",
+        "nav.label": "Navigazione principale", "nav.browse": "Sfoglia", "nav.safety": "Sicurezza", "nav.post": "Pubblica un annuncio", "language.label": "Lingua",
+        "hero.eyebrow": "Stai arrivando? Stai partendo?", "hero.title": "Passa avanti ciò che è utile.", "hero.lede": "Stanze e oggetti di uso quotidiano delle comunità internazionali, organizzati in un unico posto invece che dispersi nei gruppi WhatsApp e Facebook.", "hero.cta": "Esplora gli annunci", "hero.note": "Anteprima pubblica — solo annunci di esempio. Non serve un account per esplorare.",
+        "filter.title": "Trova ciò che fa per te", "filter.clear": "Azzera", "filter.city": "Città", "filter.cityAll": "Tutte le città", "filter.community": "Comunità", "filter.communityAll": "Tutte le comunità", "filter.international": "Studenti internazionali", "filter.resource": "Tipo di risorsa", "filter.all": "Tutto", "filter.rooms": "Stanze", "filter.items": "Oggetti", "filter.found": "{count} annunci trovati", "filter.aria": "Filtri degli annunci", "filter.resourceAria": "Tipo di risorsa",
+        "results.eyebrow": "Annunci attuali", "results.title": "Arriva più leggero.", "results.updated": "Aggiornato oggi", "results.aria": "Esplora gli annunci",
+        "common.verified": "✓ E-mail verificata", "common.details": "Vedi dettagli", "common.free": "Gratis",
+        "category.room": "Stanza", "category.bicycle": "Bicicletta", "category.furniture": "Mobili", "category.kitchen": "Cucina", "tag.international": "Internazionale",
+        "meta.available": "Disponibile", "meta.stay": "Permanenza", "meta.pickup": "Ritiro", "meta.condition": "Condizioni", "condition.good": "Buone", "condition.veryGood": "Ottime", "condition.used": "Usato",
+        "listing.room1.title": "Stanza soleggiata vicino a Blasco Ibáñez", "listing.room1.description": "Stanza arredata in appartamento condiviso, disponibile alla mia partenza. Il proprietario deve approvare il nuovo inquilino.", "listing.room1.available": "1 settembre", "listing.room1.stay": "5–10 mesi", "listing.room1.price": "410 € / mese",
+        "listing.bike.title": "Bici da città con lucchetto e luci", "listing.bike.description": "Bicicletta affidabile per tutti i giorni, revisionata di recente. Include lucchetto a U, cestino anteriore e camera d’aria di ricambio.",
+        "listing.room2.title": "Stanza tranquilla in appartamento condiviso a Gràcia", "listing.room2.description": "Stanza interna in un appartamento per tre persone con terrazza condivisa. Contratto e deposito sono gestiti dall’agenzia.", "listing.room2.available": "15 agosto", "listing.room2.stay": "6+ mesi", "listing.room2.price": "590 € / mese",
+        "listing.desk.title": "Scrivania, sedia e lampada da lettura", "listing.desk.description": "Un set da studio compatto, adatto a una stanza per studenti. Preferisco cedere tutto insieme.",
+        "listing.kitchen.title": "Kit cucina per iniziare", "listing.kitchen.description": "Padella, pentola, piatti, tazze e posate per una persona. Puliti e pronti per la prossima cucina.",
+        "listing.room3.title": "Stanza vicino a Ciudad Universitaria", "listing.room3.description": "Stanza luminosa con scrivania e armadio. È un contatto con gli attuali coinquilini, non una garanzia di affitto.", "listing.room3.available": "1 ottobre", "listing.room3.stay": "Semestre", "listing.room3.price": "520 € / mese",
+        "empty.title": "Nessun annuncio corrisponde.", "empty.text": "Prova un’altra città, comunità o tipo di risorsa.",
+        "promise.aria": "Come funziona Handover", "promise.oneTitle": "Un solo posto, meno rumore", "promise.oneText": "Trasforma i messaggi sparsi nei gruppi in annunci strutturati e ricercabili con tag di città e organizzazione.", "promise.twoTitle": "I campi giusti per ogni passaggio", "promise.twoText": "Stanze e oggetti hanno dettagli, categorie e indicazioni di sicurezza differenti.", "promise.threeTitle": "Contattabile, non “studente certificato”", "promise.threeText": "“E-mail verificata” conferma solo un canale di contatto. Verifica sempre personalmente la persona, la stanza e l’oggetto.",
+        "footer.preview": "© 2026 Handover — anteprima pubblica del prodotto", "footer.safety": "Non inviare denaro prima di aver verificato la stanza, il contratto o l’oggetto.",
+        "dialog.preview": "Anteprima del prodotto", "dialog.initialTitle": "Il flusso completo sarà il prossimo passo.", "dialog.initialCopy": "Questa pagina pubblica mostra il catalogo, i tag e la struttura separata per stanze e oggetti. Account, pubblicazione e contatti saranno collegati nell’app ospitata.", "dialog.initialSafety": "<strong>Sicurezza:</strong> La verifica dell’e-mail conferma un canale di contatto, non l’identità, lo status di studente, la proprietà o la legittimità dell’affitto.", "dialog.close": "Ho capito",
+        "dialog.postTitle": "La pubblicazione arriverà nel prossimo passo.", "dialog.postCopy": "Questa è l’anteprima pubblica del catalogo. Nella versione completa, un membro con e-mail verificata potrà pubblicare una stanza o un oggetto usando i campi appropriati.", "dialog.postSafety": "<strong>Privacy:</strong> I dati di contatto non saranno pubblici; l’app inoltrerà i messaggi dopo il consenso.",
+        "dialog.roomTitle": "Il passaggio di una stanza richiede più attenzione.", "dialog.roomCopy": "La pagina completa mostrerà affitto, disponibilità, durata, deposito e coinvolgimento di proprietario o agenzia, senza promettere una stanza garantita.", "dialog.roomSafety": "<strong>Sicurezza abitativa:</strong> Visita la stanza, verifica proprietario o agenzia, leggi il contratto e non pagare solo per prenotare una visita.",
+        "dialog.itemTitle": "Un passaggio di oggetti semplice e più sicuro.", "dialog.itemCopy": "La pagina completa mostrerà condizioni, prezzo, zona di ritiro e disponibilità, poi inoltrerà un messaggio senza esporre le e-mail.", "dialog.itemSafety": "<strong>Sicurezza degli oggetti:</strong> Controlla l’oggetto in un luogo pubblico ed evita pagamenti anticipati a sconosciuti."
+      },
+      de: {
+        "page.title": "Handover — Nützliches weitergeben",
+        "nav.label": "Hauptnavigation", "nav.browse": "Entdecken", "nav.safety": "Sicherheit", "nav.post": "Übergabe einstellen", "language.label": "Sprache",
+        "hero.eyebrow": "Bald da? Bald weg?", "hero.title": "Nützliches weitergeben.", "hero.lede": "Zimmer und Alltagsgegenstände aus internationalen Communities — übersichtlich an einem Ort statt verstreut in WhatsApp- und Facebook-Gruppen.", "hero.cta": "Übergaben entdecken", "hero.note": "Öffentliche Vorschau — nur Beispielangebote. Zum Stöbern ist kein Konto erforderlich.",
+        "filter.title": "Finde das Passende", "filter.clear": "Zurücksetzen", "filter.city": "Stadt", "filter.cityAll": "Alle Städte", "filter.community": "Community", "filter.communityAll": "Alle Communities", "filter.international": "Internationale Studierende", "filter.resource": "Kategorie", "filter.all": "Alle", "filter.rooms": "Zimmer", "filter.items": "Gegenstände", "filter.found": "{count} Übergaben gefunden", "filter.aria": "Angebotsfilter", "filter.resourceAria": "Kategorie",
+        "results.eyebrow": "Aktuelle Übergaben", "results.title": "Leichter ankommen.", "results.updated": "Heute aktualisiert", "results.aria": "Übergaben durchsuchen",
+        "common.verified": "✓ E-Mail bestätigt", "common.details": "Details ansehen", "common.free": "Kostenlos",
+        "category.room": "Zimmer", "category.bicycle": "Fahrrad", "category.furniture": "Möbel", "category.kitchen": "Küche", "tag.international": "International",
+        "meta.available": "Verfügbar", "meta.stay": "Zeitraum", "meta.pickup": "Abholung", "meta.condition": "Zustand", "condition.good": "Gut", "condition.veryGood": "Sehr gut", "condition.used": "Gebraucht",
+        "listing.room1.title": "Sonniges Zimmer nahe Blasco Ibáñez", "listing.room1.description": "Möbliertes Zimmer in einer WG, verfügbar nach meinem Auszug. Die neue Person muss vom Vermieter bestätigt werden.", "listing.room1.available": "1. September", "listing.room1.stay": "5–10 Monate", "listing.room1.price": "410 € / Monat",
+        "listing.bike.title": "Stadtrad mit Schloss und Licht", "listing.bike.description": "Zuverlässiges Alltagsrad, kürzlich gewartet. Mit Bügelschloss, Frontkorb und Ersatzschlauch.",
+        "listing.room2.title": "Ruhiges WG-Zimmer in Gràcia", "listing.room2.description": "Ruhiges Innenzimmer in einer Dreier-WG mit gemeinsamer Terrasse. Vertrag und Kaution laufen über die Agentur.", "listing.room2.available": "15. August", "listing.room2.stay": "6+ Monate", "listing.room2.price": "590 € / Monat",
+        "listing.desk.title": "Schreibtisch, Stuhl und Leselampe", "listing.desk.description": "Ein kompaktes Lernset für ein Studierendenzimmer. Am liebsten gebe ich alles zusammen ab.",
+        "listing.kitchen.title": "Küchen-Starterset", "listing.kitchen.description": "Pfanne, Topf, Teller, Tassen und Besteck für eine Person. Sauber und bereit für die nächste Küche.",
+        "listing.room3.title": "Zimmer an der Ciudad Universitaria", "listing.room3.description": "Helles Zimmer mit Schreibtisch und Kleiderschrank. Dies ist eine Vorstellung bei den aktuellen Mitbewohnern, keine Mietgarantie.", "listing.room3.available": "1. Oktober", "listing.room3.stay": "Semester", "listing.room3.price": "520 € / Monat",
+        "empty.title": "Noch keine passende Übergabe.", "empty.text": "Versuche eine andere Stadt, Community oder Kategorie.",
+        "promise.aria": "So funktioniert Handover", "promise.oneTitle": "Ein Ort, weniger Rauschen", "promise.oneText": "Mache aus verstreuten Gruppennachrichten strukturierte, durchsuchbare Angebote mit Stadt- und Organisationstags.", "promise.twoTitle": "Passende Angaben für jede Übergabe", "promise.twoText": "Zimmer und Alltagsgegenstände haben eigene Details, Kategorien und Sicherheitshinweise.", "promise.threeTitle": "Erreichbar, nicht „als Student zertifiziert“", "promise.threeText": "„E-Mail bestätigt“ bestätigt nur einen Kontaktkanal. Prüfe Person, Zimmer und Gegenstand immer selbst.",
+        "footer.preview": "© 2026 Handover — öffentliche Produktvorschau", "footer.safety": "Sende kein Geld, bevor du Zimmer, Vertrag oder Gegenstand geprüft hast.",
+        "dialog.preview": "Produktvorschau", "dialog.initialTitle": "Der vollständige Übergabeablauf kommt als Nächstes.", "dialog.initialCopy": "Diese öffentliche Seite zeigt Katalog, Tags und die getrennte Struktur für Zimmer und Gegenstände. Konten, Veröffentlichung und Kontakt werden in der gehosteten App verbunden.", "dialog.initialSafety": "<strong>Sicherheit:</strong> Eine bestätigte E-Mail belegt einen Kontaktkanal, nicht Identität, Studierendenstatus, Eigentum oder die Rechtmäßigkeit eines Mietangebots.", "dialog.close": "Verstanden",
+        "dialog.postTitle": "Veröffentlichen kommt als Nächstes.", "dialog.postCopy": "Dies ist die öffentliche Katalogvorschau. In der Vollversion kann ein Mitglied mit bestätigter E-Mail Zimmer oder Gegenstände mit passenden Angaben einstellen.", "dialog.postSafety": "<strong>Datenschutz:</strong> Kontaktdaten werden nicht öffentlich angezeigt; die App leitet Nachrichten nach Zustimmung weiter.",
+        "dialog.roomTitle": "Zimmerübergaben brauchen besondere Sorgfalt.", "dialog.roomCopy": "Die vollständige Detailseite zeigt Miete, Verfügbarkeit, Aufenthaltsdauer, Kaution und Beteiligung von Vermieter oder Agentur — ohne das Zimmer als garantiert darzustellen.", "dialog.roomSafety": "<strong>Wohnsicherheit:</strong> Besichtige das Zimmer, prüfe Vermieter oder Agentur, lies den Vertrag und zahle nicht nur für die Reservierung einer Besichtigung.",
+        "dialog.itemTitle": "Eine einfache, sicherere Gegenstandsübergabe.", "dialog.itemCopy": "Die vollständige Detailseite zeigt Zustand, Preis, Abholort und Verfügbarkeit und leitet anschließend eine Nachricht weiter, ohne E-Mail-Adressen öffentlich zu machen.", "dialog.itemSafety": "<strong>Gegenstandssicherheit:</strong> Prüfe den Gegenstand an einem öffentlichen Ort und vermeide Vorauszahlungen an Unbekannte."
+      },
+      es: {
+        "page.title": "Handover — pasa adelante lo que sirve",
+        "nav.label": "Navegación principal", "nav.browse": "Explorar", "nav.safety": "Seguridad", "nav.post": "Publicar un traspaso", "language.label": "Idioma",
+        "hero.eyebrow": "¿Llegas pronto? ¿Te vas pronto?", "hero.title": "Pasa adelante lo que sirve.", "hero.lede": "Habitaciones y objetos cotidianos de comunidades internacionales, organizados en un solo lugar en vez de dispersos entre grupos de WhatsApp y Facebook.", "hero.cta": "Explorar traspasos", "hero.note": "Vista previa pública — solo anuncios de ejemplo. No necesitas una cuenta para explorar.",
+        "filter.title": "Encuentra lo que buscas", "filter.clear": "Borrar", "filter.city": "Ciudad", "filter.cityAll": "Todas las ciudades", "filter.community": "Comunidad", "filter.communityAll": "Todas las comunidades", "filter.international": "Estudiantes internacionales", "filter.resource": "Tipo de recurso", "filter.all": "Todo", "filter.rooms": "Habitaciones", "filter.items": "Objetos", "filter.found": "{count} traspasos encontrados", "filter.aria": "Filtros de anuncios", "filter.resourceAria": "Tipo de recurso",
+        "results.eyebrow": "Traspasos actuales", "results.title": "Llega con menos peso.", "results.updated": "Actualizado hoy", "results.aria": "Explorar traspasos",
+        "common.verified": "✓ Correo verificado", "common.details": "Ver detalles", "common.free": "Gratis",
+        "category.room": "Habitación", "category.bicycle": "Bicicleta", "category.furniture": "Muebles", "category.kitchen": "Cocina", "tag.international": "Internacional",
+        "meta.available": "Disponible", "meta.stay": "Estancia", "meta.pickup": "Recogida", "meta.condition": "Estado", "condition.good": "Bueno", "condition.veryGood": "Muy bueno", "condition.used": "Usado",
+        "listing.room1.title": "Habitación soleada cerca de Blasco Ibáñez", "listing.room1.description": "Habitación amueblada en piso compartido, disponible cuando me vaya. El propietario debe aprobar a la próxima persona.", "listing.room1.available": "1 de septiembre", "listing.room1.stay": "5–10 meses", "listing.room1.price": "410 € / mes",
+        "listing.bike.title": "Bicicleta urbana con candado y luces", "listing.bike.description": "Bicicleta fiable para el día a día, revisada recientemente. Incluye candado en U, cesta delantera y cámara de repuesto.",
+        "listing.room2.title": "Habitación tranquila en piso compartido en Gràcia", "listing.room2.description": "Habitación interior en un piso de tres personas con terraza compartida. La agencia gestiona el contrato y la fianza.", "listing.room2.available": "15 de agosto", "listing.room2.stay": "6+ meses", "listing.room2.price": "590 € / mes",
+        "listing.desk.title": "Escritorio, silla y lámpara de lectura", "listing.desk.description": "Un conjunto de estudio compacto que cabe en una habitación de estudiante. Prefiero entregar todo junto.",
+        "listing.kitchen.title": "Kit básico de cocina", "listing.kitchen.description": "Sartén, olla, platos, tazas y cubiertos para una persona. Limpio y listo para la siguiente cocina.",
+        "listing.room3.title": "Habitación junto a Ciudad Universitaria", "listing.room3.description": "Habitación luminosa con escritorio y armario. Es una presentación a los compañeros actuales, no una garantía de alquiler.", "listing.room3.available": "1 de octubre", "listing.room3.stay": "Semestre", "listing.room3.price": "520 € / mes",
+        "empty.title": "Todavía no hay traspasos que coincidan.", "empty.text": "Prueba otra ciudad, comunidad o tipo de recurso.",
+        "promise.aria": "Cómo funciona Handover", "promise.oneTitle": "Un solo lugar, menos ruido", "promise.oneText": "Convierte mensajes dispersos en anuncios estructurados y fáciles de buscar con etiquetas de ciudad y organización.", "promise.twoTitle": "Los campos adecuados para cada traspaso", "promise.twoText": "Habitaciones y objetos usan detalles, categorías y avisos de seguridad diferentes.", "promise.threeTitle": "Localizable, no “estudiante certificado”", "promise.threeText": "“Correo verificado” solo confirma un canal de contacto. Comprueba siempre por tu cuenta la persona, la habitación y el objeto.",
+        "footer.preview": "© 2026 Handover — vista previa pública del producto", "footer.safety": "No envíes dinero antes de comprobar la habitación, el contrato o el objeto.",
+        "dialog.preview": "Vista previa del producto", "dialog.initialTitle": "El flujo completo de traspaso es el siguiente paso.", "dialog.initialCopy": "Esta página pública muestra el catálogo, las etiquetas y la estructura separada para habitaciones y objetos. Las cuentas, la publicación y el contacto se conectarán en la aplicación alojada.", "dialog.initialSafety": "<strong>Seguridad:</strong> Verificar el correo confirma un canal de contacto, no la identidad, la condición de estudiante, la propiedad ni la legitimidad de un alquiler.", "dialog.close": "Entendido",
+        "dialog.postTitle": "La publicación llegará en el siguiente paso.", "dialog.postCopy": "Esta es la vista previa pública del catálogo. En la versión completa, una persona con correo verificado podrá publicar una habitación u objeto usando los campos adecuados.", "dialog.postSafety": "<strong>Privacidad:</strong> Los datos de contacto no se mostrarán públicamente; la aplicación enviará los mensajes después del consentimiento.",
+        "dialog.roomTitle": "Los traspasos de habitación requieren más cuidado.", "dialog.roomCopy": "La página completa mostrará alquiler, disponibilidad, duración, fianza y participación del propietario o la agencia, sin afirmar que la habitación esté garantizada.", "dialog.roomSafety": "<strong>Seguridad de vivienda:</strong> Visita la habitación, verifica al propietario o agencia, lee el contrato y no pagues solo por reservar una visita.",
+        "dialog.itemTitle": "Un traspaso de objetos sencillo y más seguro.", "dialog.itemCopy": "La página completa mostrará estado, precio, zona de recogida y disponibilidad, y enviará un mensaje sin exponer públicamente los correos.", "dialog.itemSafety": "<strong>Seguridad de objetos:</strong> Revisa el objeto en un lugar público y evita pagos por adelantado a desconocidos."
+      }
+    };
+
+    let currentLanguage = "en";
+    const translate = (key) => translations[currentLanguage]?.[key] ?? translations.en[key] ?? key;
+    function updateResultMessage(visible) {
+      document.querySelector('#result-message').textContent = translate('filter.found').replace('{count}', visible);
+    }
+    function applyLanguage(language) {
+      currentLanguage = translations[language] ? language : 'en';
+      document.documentElement.lang = currentLanguage;
+      document.title = translate('page.title');
+      document.querySelector('#language').value = currentLanguage;
+      document.querySelectorAll('[data-i18n]').forEach((element) => { element.textContent = translate(element.dataset.i18n); });
+      document.querySelectorAll('[data-i18n-html]').forEach((element) => { element.innerHTML = translate(element.dataset.i18nHtml); });
+      document.querySelector('.site-header nav').setAttribute('aria-label', translate('nav.label'));
+      document.querySelector('.filters').setAttribute('aria-label', translate('filter.aria'));
+      document.querySelector('.market-layout').setAttribute('aria-label', translate('results.aria'));
+      document.querySelector('.segmented').setAttribute('aria-label', translate('filter.resourceAria'));
+      document.querySelector('.promise-grid').setAttribute('aria-label', translate('promise.aria'));
+      document.querySelector('#language').setAttribute('aria-label', translate('language.label'));
+      try { localStorage.setItem('handover-language', currentLanguage); } catch {}
+      filterListings();
+    }
+
     const city = document.querySelector('#city');
     const community = document.querySelector('#community');
     const kindButtons = [...document.querySelectorAll('[data-kind]')];
     const cards = [...document.querySelectorAll('.listing-card')];
-    const count = document.querySelector('#count');
     const empty = document.querySelector('#empty');
     const grid = document.querySelector('#grid');
     let kind = 'all';
@@ -292,7 +446,7 @@
         card.hidden = !match;
         if (match) visible += 1;
       });
-      count.textContent = visible;
+      updateResultMessage(visible);
       grid.style.display = visible ? 'grid' : 'none';
       empty.style.display = visible ? 'none' : 'block';
     }
@@ -309,30 +463,30 @@
       kindButtons.forEach((choice) => choice.setAttribute('aria-pressed', String(choice.dataset.kind === 'all')));
       filterListings();
     });
+    document.querySelector('#language').addEventListener('change', (event) => applyLanguage(event.target.value));
 
     const dialog = document.querySelector('#dialog');
     const dialogTitle = document.querySelector('#dialog-title');
     const dialogCopy = document.querySelector('#dialog-copy');
     const dialogSafety = document.querySelector('#dialog-safety');
     document.querySelectorAll('[data-demo]').forEach((button) => button.addEventListener('click', () => {
-      dialogTitle.textContent = 'Publishing is coming next.';
-      dialogCopy.textContent = 'This is the public catalogue preview. The production version will let an email-verified member post a room or everyday item using the right fields for each type.';
-      dialogSafety.innerHTML = '<strong>Privacy:</strong> Contact details are not displayed publicly; the hosted app will relay messages after consent.';
+      dialogTitle.textContent = translate('dialog.postTitle');
+      dialogCopy.textContent = translate('dialog.postCopy');
+      dialogSafety.innerHTML = translate('dialog.postSafety');
       dialog.showModal();
     }));
     document.querySelectorAll('[data-detail]').forEach((button) => button.addEventListener('click', () => {
       const room = button.dataset.detail === 'room';
-      dialogTitle.textContent = room ? 'Room handovers need extra care.' : 'A simple, safer item handover.';
-      dialogCopy.textContent = room
-        ? 'The production detail page will show rent, availability, stay length, deposit and landlord or agency involvement — without claiming the room is guaranteed.'
-        : 'The production detail page will show condition, price, pickup area and availability, then relay a message without exposing either email publicly.';
-      dialogSafety.innerHTML = room
-        ? '<strong>Housing safety:</strong> View the room, verify the landlord or agency, read the contract, and do not pay merely to reserve a viewing.'
-        : '<strong>Item safety:</strong> Inspect the item in a public place and avoid advance payment to unknown people.';
+      dialogTitle.textContent = translate(room ? 'dialog.roomTitle' : 'dialog.itemTitle');
+      dialogCopy.textContent = translate(room ? 'dialog.roomCopy' : 'dialog.itemCopy');
+      dialogSafety.innerHTML = translate(room ? 'dialog.roomSafety' : 'dialog.itemSafety');
       dialog.showModal();
     }));
     document.querySelector('.close').addEventListener('click', () => dialog.close());
     dialog.addEventListener('click', (event) => { if (event.target === dialog) dialog.close(); });
+    let preferredLanguage = 'en';
+    try { preferredLanguage = localStorage.getItem('handover-language') || navigator.language.slice(0, 2); } catch {}
+    applyLanguage(translations[preferredLanguage] ? preferredLanguage : 'en');
   </script>
 </body>
 </html>
