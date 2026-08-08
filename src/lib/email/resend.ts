@@ -28,3 +28,16 @@ export function verifyResendWebhook(input: { payload: string; id: string; timest
   const environment = readServerEnv();
   return new Resend(environment.resendApiKey).webhooks.verify({ payload: input.payload, headers: { id: input.id, timestamp: input.timestamp, signature: input.signature }, webhookSecret: environment.resendWebhookSecret });
 }
+
+export async function sendOperationalEmail(input: { to: string; subject: string; text: string; idempotencyKey: string; messageType: string; recordId: string }) {
+  const environment = readServerEnv();
+  const response = await new Resend(environment.resendApiKey).emails.send({
+    from: environment.emailFrom, to: input.to, subject: input.subject, text: input.text,
+    tags: [{ name: "message_type", value: input.messageType }, { name: "record_id", value: input.recordId }],
+  }, { idempotencyKey: input.idempotencyKey });
+  if (response.error) {
+    const retryable = response.error.statusCode === 429 || (response.error.statusCode ?? 500) >= 500 || response.error.name === "concurrent_idempotent_requests";
+    throw new EmailProviderError(response.error.name, retryable);
+  }
+  return response.data.id;
+}

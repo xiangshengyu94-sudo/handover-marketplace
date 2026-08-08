@@ -29,6 +29,10 @@ const assistedMigration = readFileSync(
   "supabase/migrations/202608070007_assisted_intake.sql",
   "utf8",
 );
+const moderationMigration = readFileSync(
+  "supabase/migrations/202608070008_moderation_and_taxonomy.sql",
+  "utf8",
+);
 
 const exposedTables = [
   "profiles",
@@ -77,7 +81,7 @@ describe("database migration contract", () => {
   });
 
   it("pins the search path on every security-definer helper", () => {
-    const securityDefinerFunctions = [accessMigration, authMigration, authoringMigration, lifecycleMigration, contactMigration, assistedMigration].flatMap(
+    const securityDefinerFunctions = [accessMigration, authMigration, authoringMigration, lifecycleMigration, contactMigration, assistedMigration, moderationMigration].flatMap(
       (migration) =>
         migration
           .split(/create(?: or replace)? function/)
@@ -91,7 +95,7 @@ describe("database migration contract", () => {
   });
 
   it("contains balanced PostgreSQL dollar-quoted bodies", () => {
-    for (const migration of [coreMigration, accessMigration, authMigration, authoringMigration, lifecycleMigration, contactMigration, assistedMigration]) {
+    for (const migration of [coreMigration, accessMigration, authMigration, authoringMigration, lifecycleMigration, contactMigration, assistedMigration, moderationMigration]) {
       expect(migration.match(/\$\$/g)?.length ?? 0).toSatisfy(
         (count: number) => count % 2 === 0,
       );
@@ -154,6 +158,29 @@ describe("database migration contract", () => {
     expect(assistedMigration).not.toContain("author_email text");
     expect(assistedMigration).toContain("description = 'The intended author rejected this assisted draft.'");
     expect(assistedMigration).toContain("status = 'deleted', generation = gen_random_uuid()");
+  });
+
+  it("commits moderation, notification, and cache work atomically", () => {
+    expect(moderationMigration).toContain("insert into private.moderation_history");
+    expect(moderationMigration).toContain("insert into private.notification_outbox");
+    expect(moderationMigration).toContain("insert into private.cache_invalidation_outbox");
+    expect(moderationMigration).toContain("moderation_history_append_only");
+    expect(moderationMigration).toContain("audit history is append-only");
+  });
+
+  it("protects role changes against self-grant and last-admin removal", () => {
+    expect(moderationMigration).toContain("p_actor_id = p_target_id");
+    expect(moderationMigration).toContain("last administrator cannot be removed");
+    expect(moderationMigration).toContain("insert into private.role_audit");
+    expect(moderationMigration).toContain("role_audit_append_only");
+  });
+
+  it("keeps reports, notices, roles, and notification queues out of public grants", () => {
+    for (const table of ["taxonomy_requests", "member_reports", "illegal_content_notices", "moderation_history", "notification_outbox", "role_audit"]) {
+      expect(moderationMigration).toContain(table);
+    }
+    expect(moderationMigration).toContain("from public, anon, authenticated;");
+    expect(moderationMigration).not.toMatch(/grant all on private\.[^;]+ to (?:anon|authenticated)/);
   });
 
   it("keeps auth intent and abuse state private behind service-only RPCs", () => {

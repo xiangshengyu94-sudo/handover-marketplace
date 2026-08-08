@@ -1,0 +1,4 @@
+import type { Metadata } from "next";
+import { SiteHeader } from "@/components/navigation/site-header";
+export const metadata: Metadata = { title: "Safety" };
+export default function SafetyPage() { return <><SiteHeader /><main className="policy-page"><p className="eyebrow">Safety</p><h1>Verify before you hand over.</h1><h2>Housing</h2><p>Handover structures community posts; it does not inspect properties, prove tenancy authority, or guarantee an agreement. Independently verify the place and the person’s right to offer it. Do not send deposits under pressure.</p><h2>Items</h2><p>Meet publicly when possible, inspect before paying, and avoid unusual payment or shipping requests. A verified email confirms contactability, not identity or student status.</p><h2>Report</h2><p>Signed-in members can report a listing. Anyone can submit a detailed illegal-content notice. Urgent fraud, impersonation, and privacy reports enter the priority queue.</p></main></>; }

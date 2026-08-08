@@ -1,7 +1,7 @@
 import { timingSafeEqual } from "node:crypto";
 import { NextResponse } from "next/server";
 
-import { dispatchContactBatch } from "@/lib/email/dispatcher";
+import { dispatchContactBatch, dispatchNotificationBatch } from "@/lib/email/dispatcher";
 import { readServerEnv } from "@/lib/env";
 
 export async function POST(request: Request) {
@@ -10,8 +10,8 @@ export async function POST(request: Request) {
   try { expected = readServerEnv().cronDispatchSecret; } catch { return NextResponse.json({ error: "Unavailable." }, { status: 503 }); }
   if (!safeEqual(provided, expected)) return NextResponse.json({ error: "Not found." }, { status: 404 });
   try {
-    const outcomes = await dispatchContactBatch(10);
-    return NextResponse.json({ processed: outcomes.length, outcomes });
+    const [contacts, notifications] = await Promise.all([dispatchContactBatch(10), dispatchNotificationBatch(10)]);
+    return NextResponse.json({ processed: contacts.length + notifications.length, contacts, notifications });
   } catch {
     return NextResponse.json({ error: "Dispatch failed." }, { status: 503 });
   }

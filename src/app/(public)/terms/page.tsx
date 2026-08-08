@@ -1,0 +1,4 @@
+import type { Metadata } from "next";
+import { SiteHeader } from "@/components/navigation/site-header";
+export const metadata: Metadata = { title: "Terms" };
+export default function TermsPage() { return <><SiteHeader /><main className="policy-page"><p className="eyebrow">Terms</p><h1>A handover noticeboard, not a guarantor.</h1><p>Publish only information and images you have permission to share. Do not post illegal items, discriminatory housing terms, fraud, impersonation, exact private addresses, private-group invitations, or another person’s contact details.</p><p>Listings may be hidden or removed for safety, legal, privacy, accuracy, or policy reasons. Decisions are recorded and may be reversed without erasing their audit history.</p><p>Assisted drafts remain private until the invited email holder claims and publishes them. Email matching alone does not prove original authorship; review the draft before accepting it.</p></main></>; }
