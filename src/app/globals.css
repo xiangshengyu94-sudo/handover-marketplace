@@ -266,6 +266,14 @@ button:disabled { cursor: wait; opacity: 0.68; }
 .detail-facts dd { margin: 0.3rem 0 0; font-weight: 700; text-transform: capitalize; }
 .contact-card { position: sticky; top: 1rem; display: grid; gap: 1rem; padding: 1.35rem; border: 1px solid rgb(24 35 29 / 0.13); border-radius: 1.2rem; background: var(--surface); box-shadow: 0 1rem 3rem rgb(41 55 47 / 0.08); }
 .contact-card p { margin: 0; color: var(--muted); line-height: 1.5; }
+.contact-form { display: grid; gap: 0.75rem; padding-top: 0.75rem; border-top: 1px solid rgb(24 35 29 / 0.12); }
+.contact-form > label:first-child { font-weight: 780; }
+.contact-form textarea { width: 100%; padding: 0.75rem; border: 1px solid rgb(24 35 29 / 0.24); border-radius: 0.7rem; background: var(--surface); resize: vertical; line-height: 1.45; }
+.contact-consent { display: flex; gap: 0.55rem; align-items: start; color: var(--muted); font-size: 0.9rem; line-height: 1.4; }
+.contact-consent input { width: 1.1rem; height: 1.1rem; margin-top: 0.1rem; accent-color: var(--accent); }
+.contact-status { display: grid; gap: 0.35rem; padding: 1rem; border-radius: 0.8rem; background: var(--context); }
+.contact-status strong { text-transform: capitalize; }
+.contact-status.bounced, .contact-status.suppressed, .contact-status.failed { color: #7f271b; background: #ffe0d8; }
 .detail-price { font-family: Georgia, serif; font-size: 3rem; font-weight: 500; }
 .dashboard-header { display: flex; gap: 2rem; align-items: end; justify-content: space-between; margin-bottom: 2.5rem; }
 .dashboard-header h1 { font-size: clamp(3rem, 7vw, 6rem); }

@@ -21,6 +21,10 @@ const lifecycleMigration = readFileSync(
   "supabase/migrations/202608070005_public_discovery_and_lifecycle.sql",
   "utf8",
 );
+const contactMigration = readFileSync(
+  "supabase/migrations/202608070006_contact_relay.sql",
+  "utf8",
+);
 
 const exposedTables = [
   "profiles",
@@ -69,7 +73,7 @@ describe("database migration contract", () => {
   });
 
   it("pins the search path on every security-definer helper", () => {
-    const securityDefinerFunctions = [accessMigration, authMigration, authoringMigration, lifecycleMigration].flatMap(
+    const securityDefinerFunctions = [accessMigration, authMigration, authoringMigration, lifecycleMigration, contactMigration].flatMap(
       (migration) =>
         migration
           .split(/create(?: or replace)? function/)
@@ -83,7 +87,7 @@ describe("database migration contract", () => {
   });
 
   it("contains balanced PostgreSQL dollar-quoted bodies", () => {
-    for (const migration of [coreMigration, accessMigration, authMigration, authoringMigration, lifecycleMigration]) {
+    for (const migration of [coreMigration, accessMigration, authMigration, authoringMigration, lifecycleMigration, contactMigration]) {
       expect(migration.match(/\$\$/g)?.length ?? 0).toSatisfy(
         (count: number) => count % 2 === 0,
       );
@@ -112,6 +116,24 @@ describe("database migration contract", () => {
     expect(lifecycleMigration).toContain("insert into private.listing_status_history");
     expect(lifecycleMigration).toContain("insert into private.cache_invalidation_outbox");
     expect(lifecycleMigration).toContain("where id = p_listing_id and version = p_expected_version");
+  });
+
+  it("queues contact exactly once without storing an owner email", () => {
+    const outboxDefinition = contactMigration.match(/create table private\.contact_outbox \([\s\S]*?\n\);/)?.[0] ?? "";
+    expect(contactMigration).toContain("intent_id uuid not null unique");
+    expect(contactMigration).toContain("idempotency_key text not null unique");
+    expect(outboxDefinition).not.toContain("owner_email");
+    expect(contactMigration).toContain("for update skip locked");
+    expect(contactMigration).toContain("first_attempt_at > now() - interval '23 hours'");
+    expect(contactMigration).toContain("on conflict (event_id) do nothing");
+  });
+
+  it("keeps contact content and provider events private", () => {
+    for (const table of ["contact_intents", "contact_outbox", "contact_provider_events"]) {
+      expect(contactMigration).toContain(`alter table private.${table} force row level security;`);
+    }
+    expect(contactMigration).toContain("from public, anon, authenticated;");
+    expect(contactMigration).not.toMatch(/grant (?:select|all) on private\.contact_(?:intents|outbox|provider_events)[^;]+to (?:anon|authenticated)/);
   });
 
   it("keeps auth intent and abuse state private behind service-only RPCs", () => {
