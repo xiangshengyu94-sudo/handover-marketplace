@@ -6,9 +6,9 @@ import { consumeRateLimit, hashAbuseKey } from "@/lib/auth/admin";
 import { assertSameOrigin } from "@/lib/auth/csrf";
 import { AuthorizationError } from "@/lib/auth/errors";
 import { requireActiveMember } from "@/lib/auth/require-active-member";
+import { issueContactIntent } from "@/lib/contact/admin";
 import { deriveContactIntentToken, hashContactIntentToken } from "@/lib/contact/intent";
 import { contactRequestSchema, digestContactPayload } from "@/lib/contact/policy";
-import { createClient } from "@/lib/supabase/server";
 
 const bodySchema = contactRequestSchema.pick({ message: true, consent: true, requestKey: true }).extend({ listingId: z.uuid() }).strict();
 
@@ -25,11 +25,10 @@ export async function POST(request: Request) {
     if (!ipLimit.allowed || !memberLimit.allowed) return NextResponse.json({ error: "Too many requests. Wait and try again." }, { status: 429 });
     const token = deriveContactIntentToken(member.id, body.requestKey);
     const expiresAt = new Date(Date.now() + 10 * 60 * 1_000).toISOString();
-    const client = await createClient();
-    const { data, error } = await client.rpc("issue_contact_intent", {
-      p_id: randomUUID(), p_request_key: body.requestKey, p_listing_id: body.listingId,
-      p_token_hash: hashContactIntentToken(token), p_payload_hash: digestContactPayload(body.listingId, body.message),
-      p_message_body: body.message, p_expires_at: expiresAt,
+    const { data, error } = await issueContactIntent({
+      senderId: member.id, id: randomUUID(), requestKey: body.requestKey, listingId: body.listingId,
+      tokenHash: hashContactIntentToken(token), payloadHash: digestContactPayload(body.listingId, body.message),
+      message: body.message, expiresAt,
     });
     const intent = Array.isArray(data) ? data[0] : null;
     if (error || !intent) return unavailable();

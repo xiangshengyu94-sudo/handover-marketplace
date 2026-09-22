@@ -7,10 +7,10 @@ import { consumeCaptchaChallenge, consumeRateLimit, hashAbuseKey } from "@/lib/a
 import { assertSameOrigin } from "@/lib/auth/csrf";
 import { AuthorizationError } from "@/lib/auth/errors";
 import { requireActiveMember } from "@/lib/auth/require-active-member";
+import { consumeContactIntent } from "@/lib/contact/admin";
 import { hashContactIntentToken } from "@/lib/contact/intent";
 import { contactMessageSchema, digestContactPayload, publicDeliveryState } from "@/lib/contact/policy";
 import { readServerEnv } from "@/lib/env";
-import { createClient } from "@/lib/supabase/server";
 
 const bodySchema = z.object({ token: z.string().min(32).max(256), message: contactMessageSchema, consent: z.literal(true), captchaToken: z.string().max(2_048).optional() }).strict();
 
@@ -35,8 +35,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
         return NextResponse.json({ error: "Complete the verification challenge and try again.", captchaRequired: true }, { status: 403 });
       }
     }
-    const client = await createClient();
-    const { data, error } = await client.rpc("consume_contact_intent", { p_token_hash: hashContactIntentToken(body.token), p_listing_id: listingId, p_payload_hash: digestContactPayload(listingId, body.message), p_message_body: body.message });
+    const { data, error } = await consumeContactIntent({ senderId: member.id, tokenHash: hashContactIntentToken(body.token), listingId, payloadHash: digestContactPayload(listingId, body.message), message: body.message });
     const queued = Array.isArray(data) ? data[0] : null;
     if (error || !queued) return NextResponse.json({ error: "This listing is not accepting new messages." }, { status: 409 });
     return NextResponse.json({ intentId: queued.intent_id, status: publicDeliveryState(String(queued.delivery_status)), updatedAt: queued.delivery_updated_at }, { status: 202, headers: { "cache-control": "no-store" } });

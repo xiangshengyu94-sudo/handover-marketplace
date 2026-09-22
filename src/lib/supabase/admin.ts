@@ -6,6 +6,7 @@ import { assertEnvironmentIsolation, readServerEnv } from "@/lib/env";
 
 export const PRIVILEGED_IMPORT_ALLOWLIST = [
   "src/lib/auth/admin.ts",
+  "src/lib/contact/admin.ts",
   "src/lib/email/dispatcher.ts",
   "src/lib/images/process.ts",
   "src/lib/assisted/claims.ts",

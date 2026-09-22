@@ -1,5 +1,25 @@
 # Production deployment, migration, and observation runbook
 
+## Existing pilot database caveat (2026-09-22)
+
+The current Supabase production project has the marketplace tables and the
+`other` listing functions, but no `supabase_migrations.schema_migrations`
+history. **Do not run `supabase db push` against it**: the bootstrap migrations
+would collide with existing types and tables. This pilot release applies only
+`202609220001_restrict_contact_and_notice_ingress.sql` in one transaction
+after verifying its prerequisite functions and permissions. Deploy and verify
+the new application before applying
+`202609220002_close_direct_contact_and_notice_ingress.sql` in a separate
+transaction. Preserve both SQL Editor results and post-change privilege checks
+as release evidence. Before any later automated
+database deploy, fingerprint the live schema and reconcile migration history
+through the supported Supabase migration-repair workflow; do not mark an
+unverified migration as applied.
+
+If the application cutover fails, keep the direct contact and notice RPCs
+closed to client roles. Pause those submission journeys until a compatible
+server build is restored; do not re-open the bypass as a quick rollback.
+
 ## Named command roles
 
 Record a primary and deputy for each role before starting: release commander; database/migration owner; infrastructure/email owner; privacy/security approver; moderation on-call. One person may fill multiple roles only when coverage and independent privacy approval remain credible. An unfilled role is a no-go.

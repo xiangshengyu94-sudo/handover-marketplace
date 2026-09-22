@@ -4,6 +4,15 @@ import { createPrivilegedClient } from "@/lib/supabase/admin";
 
 function admin() { return createPrivilegedClient("src/lib/moderation/actions.ts"); }
 
+export async function submitIllegalNotice(input: { listingId: string | null; category: string; explanation: string; goodFaithAttested: boolean }) {
+  return admin().rpc("submit_illegal_content_notice", {
+    p_listing_id: input.listingId ?? null,
+    p_category: input.category,
+    p_explanation: input.explanation,
+    p_good_faith_attested: input.goodFaithAttested,
+  });
+}
+
 export async function listModerationWork(actorId: string) {
   const client = admin();
   const { data, error } = await client.rpc("admin_list_moderation_work", { p_actor_id: actorId });
