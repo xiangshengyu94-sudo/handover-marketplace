@@ -37,6 +37,7 @@ export default async function AccountPage() {
             <dd>{user.newEmail ? "Verification pending" : "Email verified"}</dd>
           </div>
         </dl>
+        <Link className="button-link" href="/">Back to home</Link>
         <div className="account-section">
           <h2>Email settings</h2>
           <EmailChangeForm currentEmail={user.email} pendingEmail={user.newEmail} />
