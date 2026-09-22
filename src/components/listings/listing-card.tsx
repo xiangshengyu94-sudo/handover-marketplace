@@ -5,7 +5,6 @@ import { localizeCategoryLabel, type Dictionary } from "@/lib/i18n/dictionaries"
 import type { ListingSummary } from "@/lib/listings/queries";
 
 const dateFormatters = new Map<Locale, Intl.DateTimeFormat>();
-const currencyFormatters = new Map<string, Intl.NumberFormat>();
 
 export function ListingCard({ listing, locale, dictionary }: { listing: ListingSummary; locale: Locale; dictionary: Dictionary }) {
   const giveaway = listing.item?.isGiveaway || listing.priceAmount === 0;
@@ -23,11 +22,9 @@ function formatDate(value: string, locale: Locale) {
 }
 
 function formatCurrency(value: number, currency: string, locale: Locale) {
-  const key = `${locale}:${currency}`;
-  let formatter = currencyFormatters.get(key);
-  if (!formatter) {
-    formatter = new Intl.NumberFormat(FORMAT_LOCALES[locale], { style: "currency", currency, maximumFractionDigits: 0 });
-    currencyFormatters.set(key, formatter);
-  }
-  return formatter.format(value);
+  return new Intl.NumberFormat(FORMAT_LOCALES[locale], {
+    style: "currency",
+    currency,
+    maximumFractionDigits: 0,
+  }).format(value);
 }

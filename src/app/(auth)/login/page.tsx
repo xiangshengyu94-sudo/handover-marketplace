@@ -16,6 +16,17 @@ export default async function LoginPage({
   const returnTo = sanitizeReturnTo((await searchParams).returnTo);
   const locale = await getLocale();
   const dictionary = getDictionary(locale);
+  const authDictionary = {
+    authCodeSentTo: dictionary.authCodeSentTo,
+    authSixDigit: dictionary.authSixDigit,
+    authChecking: dictionary.authChecking,
+    authVerify: dictionary.authVerify,
+    authResend: dictionary.authResend,
+    authEmail: dictionary.authEmail,
+    authNote: dictionary.authNote,
+    authSending: dictionary.authSending,
+    authSendCode: dictionary.authSendCode,
+  };
   return (
     <main>
       <section className="auth-card" aria-labelledby="sign-in-title">
@@ -23,7 +34,7 @@ export default async function LoginPage({
         <p className="eyebrow">{dictionary.authEyebrow}</p>
         <h1 id="sign-in-title">{dictionary.authTitle}</h1>
         <p className="lede">{dictionary.authLede}</p>
-        <OtpForm returnTo={returnTo} dictionary={dictionary} />
+        <OtpForm returnTo={returnTo} dictionary={authDictionary} />
       </section>
     </main>
   );

@@ -7,7 +7,8 @@ import { createClient } from "@/lib/supabase/server";
 import { AuthorizationError } from "./errors";
 import { requireActiveMember } from "./require-active-member";
 
-const appRoleSchema = z.enum(["operator", "moderator", "administrator"]);
+export const APP_ROLES = ["operator", "moderator", "administrator"] as const;
+const appRoleSchema = z.enum(APP_ROLES);
 export type AppRole = z.infer<typeof appRoleSchema>;
 
 export async function requireRole(role: AppRole) {

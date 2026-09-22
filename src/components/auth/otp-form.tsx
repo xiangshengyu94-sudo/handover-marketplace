@@ -10,7 +10,20 @@ import {
 import { initialOtpState } from "@/lib/auth/form-state";
 import type { Dictionary } from "@/lib/i18n/dictionaries";
 
-export function OtpForm({ returnTo, dictionary }: { returnTo: string; dictionary: Dictionary }) {
+type OtpFormDictionary = Pick<
+  Dictionary,
+  | "authCodeSentTo"
+  | "authSixDigit"
+  | "authChecking"
+  | "authVerify"
+  | "authResend"
+  | "authEmail"
+  | "authNote"
+  | "authSending"
+  | "authSendCode"
+>;
+
+export function OtpForm({ returnTo, dictionary }: { returnTo: string; dictionary: OtpFormDictionary }) {
   const [requestState, requestAction, requesting] = useActionState(
     requestOtpAction,
     { ...initialOtpState, returnTo },
