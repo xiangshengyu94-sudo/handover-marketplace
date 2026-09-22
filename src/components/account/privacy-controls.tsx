@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 
+import { BRAND_NAME, BRAND_SLUG } from "@/lib/brand";
+
 type Operation = "idle" | "exporting" | "deleting" | "deleted";
 
 type DeletionResult = {
@@ -68,7 +70,7 @@ export function PrivacyControls() {
         if (!isCurrentExport()) return;
         const link = document.createElement("a");
         link.href = url;
-        link.download = `handover-export-${new Date().toISOString().slice(0, 10)}.json`;
+        link.download = `${BRAND_SLUG}-export-${new Date().toISOString().slice(0, 10)}.json`;
         link.click();
       } finally {
         URL.revokeObjectURL(url);
@@ -139,7 +141,7 @@ export function PrivacyControls() {
 
   if (operation === "deleted" && deletionResult) {
     const receiptText = [
-      "Handover account deletion receipt",
+      `${BRAND_NAME} account deletion receipt`,
       `Status: ${deletionResult.status}`,
       `Receipt: ${deletionResult.receipt}`,
     ].join("\n");
@@ -169,13 +171,13 @@ export function PrivacyControls() {
           <div className="button-row">
             <a
               className="button-link button-secondary"
-              download={`handover-deletion-receipt-${deletionResult.receipt}.txt`}
+              download={`${BRAND_SLUG}-deletion-receipt-${deletionResult.receipt}.txt`}
               href={receiptHref}
             >
               Save receipt
             </a>
             <Link className="button-link" href="/">
-              Return to Handover home
+              Return to {BRAND_NAME} home
             </Link>
           </div>
         </section>

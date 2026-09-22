@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 
+import { BRAND_NAME } from "@/lib/brand";
+
 export function ShareKit({ listingId, title }: { listingId: string; title: string }) {
   const [message, setMessage] = useState("");
   const path = `/listings/${listingId}`;
@@ -9,7 +11,7 @@ export function ShareKit({ listingId, title }: { listingId: string; title: strin
     const url = new URL(path, window.location.origin).toString();
     const text = `${title.trim().slice(0, 120)} — ${url}`;
     const shareMethod = Reflect.get(navigator, "share") as undefined | ((data: ShareData) => Promise<void>);
-    if (shareMethod) await shareMethod.call(navigator, { title: "Handover listing", text, url });
+    if (shareMethod) await shareMethod.call(navigator, { title: `${BRAND_NAME} listing`, text, url });
     else await navigator.clipboard.writeText(text);
     setMessage(shareMethod ? "Share sheet opened." : "Share text copied.");
   }

@@ -220,8 +220,8 @@ set search_path = pg_catalog, public, private, auth as $$
       )
       and owner_profile.account_status='active' and owner_profile.deleted_at is null
       and sender_profile.account_status='active' and sender_profile.deleted_at is null
-      and owner_user.email_confirmed_at is not null and owner_user.new_email is null
-      and sender_user.email_confirmed_at is not null and sender_user.new_email is null
+      and owner_user.email_confirmed_at is not null and nullif(owner_user.email_change, '') is null
+      and sender_user.email_confirmed_at is not null and nullif(sender_user.email_change, '') is null
   );
 $$;
 
@@ -429,7 +429,7 @@ begin
   where claim.token_hash=p_token_hash and claim.author_email_hmac=p_author_email_hmac
     and claim.status='pending' and claim.expires_at>now()
     and profile.account_status='active' and profile.deleted_at is null
-    and account.email_confirmed_at is not null and account.new_email is null;
+    and account.email_confirmed_at is not null and nullif(account.email_change, '') is null;
 end; $$;
 
 create function public.admin_begin_account_deletion(p_user_id uuid,p_request_id uuid,p_receipt_code uuid)

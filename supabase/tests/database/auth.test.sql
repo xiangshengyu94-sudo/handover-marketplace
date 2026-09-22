@@ -47,7 +47,7 @@ select ok(public.current_user_is_active(), 'a confirmed active account can mutat
 reset role;
 
 update auth.users
-set new_email = 'new@example.test', email_change_sent_at = now()
+set email_change = 'new@example.test', email_change_sent_at = now()
 where id = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaa3';
 
 set local role authenticated;

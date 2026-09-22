@@ -7,11 +7,13 @@ const ids = {
   organization: "22222222-2222-4222-8222-222222222222",
   room: "33333333-3333-4333-8333-333333333333",
   bicycle: "44444444-4444-4444-8444-444444444444",
+  other: "55555555-5555-4555-8555-555555555555",
 } as const;
 
 const schema = createListingInputSchema([
   { id: ids.room, kind: "housing" },
   { id: ids.bicycle, kind: "item" },
+  { id: ids.other, kind: "other" },
 ]);
 
 const common = {
@@ -150,5 +152,20 @@ describe("kind-specific listing input", () => {
         },
       }),
     ).toThrow();
+  });
+
+  it("accepts a generic other-information listing without housing or item details", () => {
+    const listing = schema.parse({
+      ...common,
+      title: "Language exchange meetup",
+      description: "A casual weekly meetup for newcomers who want to practise together.",
+      kind: "other",
+      resourceCategoryId: ids.other,
+      priceAmount: 0,
+    });
+
+    expect(listing.kind).toBe("other");
+    expect(listing).not.toHaveProperty("housing");
+    expect(listing).not.toHaveProperty("item");
   });
 });

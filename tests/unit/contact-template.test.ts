@@ -8,6 +8,7 @@ describe("contact relay email", () => {
     expect(rendered.html).not.toContain("<script>");
     expect(rendered.html).toContain("&lt;script&gt;");
     expect(rendered.text).toContain("Reply to this email");
-    expect(rendered.subject).toBe("Handover enquiry: Desk <special>");
+    expect(rendered.subject).toBe("ReLoop enquiry: Desk <special>");
+    expect(rendered.text).toContain("ReLoop never asks you to pay");
   });
 });

@@ -14,7 +14,7 @@ const validEnvironment = {
   SUPABASE_SECRET_KEY: "sb_secret_staging_value",
   RESEND_API_KEY: "re_staging_value",
   RESEND_WEBHOOK_SECRET: "whsec_staging_value",
-  EMAIL_FROM: "Handover <handover@staging.example>",
+  EMAIL_FROM: "ReLoop <reloop@staging.example>",
   CRON_DISPATCH_SECRET: "cron-staging-value",
   CRON_RETENTION_SECRET: "retention-staging-value",
   MONITORING_CANARY_SECRET: "monitoring-staging-value",

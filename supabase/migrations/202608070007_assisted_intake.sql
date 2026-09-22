@@ -163,7 +163,7 @@ begin
   where c.token_hash = p_token_hash and c.author_email_hmac = p_author_email_hmac
     and c.status = 'pending' and c.expires_at > now()
     and p.account_status = 'active' and p.deleted_at is null
-    and u.email_confirmed_at is not null and u.new_email is null;
+    and u.email_confirmed_at is not null and nullif(u.email_change, '') is null;
 end;
 $$;
 
@@ -188,7 +188,7 @@ begin
     or not exists (
       select 1 from public.profiles p join auth.users u on u.id = p.user_id
       where p.user_id = p_claimant_id and p.account_status = 'active' and p.deleted_at is null
-        and u.email_confirmed_at is not null and u.new_email is null
+        and u.email_confirmed_at is not null and nullif(u.email_change, '') is null
     )
   then raise exception using errcode = '42501', message = 'assisted claim unavailable'; end if;
 

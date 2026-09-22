@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 export const taxonomyStatusSchema = z.enum(["active", "retired"]);
-export const listingKindSchema = z.enum(["housing", "item"]);
+export const listingKindSchema = z.enum(["housing", "item", "other"]);
 
 const uuidSchema = z.uuid();
 const slugSchema = z

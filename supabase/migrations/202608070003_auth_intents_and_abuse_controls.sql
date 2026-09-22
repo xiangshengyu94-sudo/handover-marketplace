@@ -196,7 +196,7 @@ as $$
       and p.account_status = 'active'
       and p.deleted_at is null
       and u.email_confirmed_at is not null
-      and u.new_email is null
+      and nullif(u.email_change, '') is null
   );
 $$;
 

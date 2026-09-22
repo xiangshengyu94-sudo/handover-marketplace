@@ -63,13 +63,24 @@ const itemListingSchema = z
   })
   .strict();
 
+const otherListingSchema = z
+  .object({
+    ...commonListingFields,
+    kind: z.literal("other"),
+  })
+  .strict();
+
 type CategoryReference = { id: string; kind: ListingKind };
 
 export function createListingInputSchema(categories: readonly CategoryReference[]) {
   const categoryKinds = new Map(categories.map(({ id, kind }) => [id, kind]));
 
   return z
-    .discriminatedUnion("kind", [housingListingSchema, itemListingSchema])
+    .discriminatedUnion("kind", [
+      housingListingSchema,
+      itemListingSchema,
+      otherListingSchema,
+    ])
     .superRefine((listing, context) => {
       const categoryKind = categoryKinds.get(listing.resourceCategoryId);
       if (categoryKind !== listing.kind) {

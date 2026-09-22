@@ -8,8 +8,9 @@ import {
   verifyOtpAction,
 } from "@/app/(auth)/login/actions";
 import { initialOtpState } from "@/lib/auth/form-state";
+import type { Dictionary } from "@/lib/i18n/dictionaries";
 
-export function OtpForm({ returnTo }: { returnTo: string }) {
+export function OtpForm({ returnTo, dictionary }: { returnTo: string; dictionary: Dictionary }) {
   const [requestState, requestAction, requesting] = useActionState(
     requestOtpAction,
     { ...initialOtpState, returnTo },
@@ -27,8 +28,8 @@ export function OtpForm({ returnTo }: { returnTo: string }) {
           <input type="hidden" name="email" value={requestState.email} />
           <input type="hidden" name="intent" value={requestState.intent} />
           <input type="hidden" name="returnTo" value={requestState.returnTo} />
-          <p className="form-note">Code sent to {requestState.email}</p>
-          <label htmlFor="otp">Six-digit code</label>
+          <p className="form-note">{dictionary.authCodeSentTo} {requestState.email}</p>
+          <label htmlFor="otp">{dictionary.authSixDigit}</label>
           <input
             id="otp"
             name="token"
@@ -46,14 +47,14 @@ export function OtpForm({ returnTo }: { returnTo: string }) {
             </p>
           ) : null}
           <button type="submit" disabled={verifying}>
-            {verifying ? "Checking..." : "Verify email"}
+            {verifying ? dictionary.authChecking : dictionary.authVerify}
           </button>
         </form>
         <form action={requestAction} className="inline-form">
           <input type="hidden" name="email" value={requestState.email} />
           <input type="hidden" name="returnTo" value={requestState.returnTo} />
           <button className="button-secondary" type="submit" disabled={requesting}>
-            Resend code
+            {dictionary.authResend}
           </button>
         </form>
       </div>
@@ -63,7 +64,7 @@ export function OtpForm({ returnTo }: { returnTo: string }) {
   return (
     <form action={requestAction} className="auth-form">
       <input type="hidden" name="returnTo" value={returnTo} />
-      <label htmlFor="email">Email address</label>
+      <label htmlFor="email">{dictionary.authEmail}</label>
       <input
         id="email"
         name="email"
@@ -75,7 +76,7 @@ export function OtpForm({ returnTo }: { returnTo: string }) {
         autoFocus
       />
       <p className="form-note">
-        Any working email is welcome. Verification means we can reach you; it is not student-status proof.
+        {dictionary.authNote}
       </p>
       {requestState.captchaRequired ? (
         <>
@@ -91,7 +92,7 @@ export function OtpForm({ returnTo }: { returnTo: string }) {
         <p className="form-error" role="alert">{requestState.error}</p>
       ) : null}
       <button type="submit" disabled={requesting}>
-        {requesting ? "Sending..." : "Email me a code"}
+        {requesting ? dictionary.authSending : dictionary.authSendCode}
       </button>
     </form>
   );

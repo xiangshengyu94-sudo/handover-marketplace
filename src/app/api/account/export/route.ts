@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { assertSameOrigin } from "@/lib/auth/csrf";
 import { AuthorizationError } from "@/lib/auth/errors";
 import { requireActiveMember } from "@/lib/auth/require-active-member";
+import { BRAND_SLUG } from "@/lib/brand";
 import { exportAccountData } from "@/lib/privacy/export";
 
 export async function POST(request: Request) {
@@ -18,7 +19,7 @@ export async function POST(request: Request) {
     return new NextResponse(JSON.stringify(data), {
       headers: {
         "content-type": "application/json; charset=utf-8",
-        "content-disposition": `attachment; filename="handover-export-${date}.json"`,
+        "content-disposition": `attachment; filename="${BRAND_SLUG}-export-${date}.json"`,
         "cache-control": "private, no-store",
       },
     });

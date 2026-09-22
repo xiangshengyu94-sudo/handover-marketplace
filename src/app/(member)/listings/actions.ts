@@ -64,10 +64,9 @@ export async function saveListingAction(
     const publish = formData.get("intent") === "publish";
     const housing = listing.kind === "housing" ? listing.housing : null;
     const item = listing.kind === "item" ? listing.item : null;
-    const { data, error } = await client.rpc("save_own_listing", {
+    const commonParameters = {
       p_listing_id: listingId,
       p_expected_version: expectedVersion,
-      p_kind: listing.kind,
       p_city_id: listing.cityId,
       p_organization_ids: listing.organizationIds,
       p_resource_category_id: listing.resourceCategoryId,
@@ -78,20 +77,26 @@ export async function saveListingAction(
       p_approximate_area: listing.approximateArea,
       p_available_from: listing.availableFrom,
       p_expires_at: listing.expiresAt,
-      p_housing_subtype: housing?.subtype ?? null,
-      p_furnished: housing?.furnished ?? null,
-      p_bills_included: housing?.billsIncluded ?? null,
-      p_publication_rights_acknowledged:
-        housing?.publicationRightsAcknowledged ?? null,
-      p_permission_acknowledged: housing?.permissionAcknowledged ?? null,
-      p_safety_warning_acknowledged:
-        housing?.safetyWarningAcknowledged ?? null,
-      p_item_condition: item?.condition ?? null,
-      p_quantity: item?.quantity ?? null,
-      p_pickup_area: item?.pickupArea ?? null,
-      p_is_giveaway: item?.isGiveaway ?? null,
       p_publish: publish,
-    });
+    };
+    const { data, error } = listing.kind === "other"
+      ? await client.rpc("save_own_other_listing", commonParameters)
+      : await client.rpc("save_own_listing", {
+          ...commonParameters,
+          p_kind: listing.kind,
+          p_housing_subtype: housing?.subtype ?? null,
+          p_furnished: housing?.furnished ?? null,
+          p_bills_included: housing?.billsIncluded ?? null,
+          p_publication_rights_acknowledged:
+            housing?.publicationRightsAcknowledged ?? null,
+          p_permission_acknowledged: housing?.permissionAcknowledged ?? null,
+          p_safety_warning_acknowledged:
+            housing?.safetyWarningAcknowledged ?? null,
+          p_item_condition: item?.condition ?? null,
+          p_quantity: item?.quantity ?? null,
+          p_pickup_area: item?.pickupArea ?? null,
+          p_is_giveaway: item?.isGiveaway ?? null,
+        });
     const saved = Array.isArray(data) ? data[0] : null;
     if (error || !saved) {
       if (error?.code === "40001") {

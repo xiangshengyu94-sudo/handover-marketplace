@@ -132,6 +132,8 @@ button:disabled { cursor: wait; opacity: 0.68; }
   margin-bottom: clamp(2rem, 6vw, 5rem);
 }
 .listing-header > a { font-family: Georgia, serif; font-size: 1.5rem; font-weight: 650; text-decoration: none; }
+.listing-brand { display: flex; flex-direction: column; gap: 1rem; align-items: flex-start; }
+.listing-brand > a { font-family: Georgia, serif; font-size: 1.5rem; font-weight: 650; text-decoration: none; }
 .listing-header h1 { max-width: 10ch; font-size: clamp(3.2rem, 8vw, 6.5rem); }
 .listing-form { display: grid; gap: 1.25rem; }
 .kind-picker, .form-section, .form-actions, .share-kit {
@@ -140,7 +142,7 @@ button:disabled { cursor: wait; opacity: 0.68; }
   background: rgb(255 253 248 / 0.92);
   box-shadow: 0 1rem 3rem rgb(41 55 47 / 0.07);
 }
-.kind-picker { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.8rem; padding: clamp(1.25rem, 3vw, 2rem); }
+.kind-picker { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.8rem; padding: clamp(1.25rem, 3vw, 2rem); }
 .kind-picker legend { grid-column: 1 / -1; padding: 0 0 0.8rem; font-family: Georgia, serif; font-size: 1.6rem; }
 .kind-picker label { position: relative; display: grid; gap: 0.3rem; padding: 1.25rem; border: 1px solid rgb(24 35 29 / 0.2); border-radius: 1rem; cursor: pointer; }
 .kind-picker label.selected { border-color: var(--accent); background: var(--context); box-shadow: inset 0 0 0 1px var(--accent); }
@@ -204,11 +206,22 @@ button:disabled { cursor: wait; opacity: 0.68; }
 .site-header nav { display: flex; flex-wrap: wrap; gap: 0.35rem 1.2rem; align-items: center; }
 .site-header nav a { padding: 0.55rem 0; font-weight: 720; text-decoration: none; }
 .site-header .nav-cta { padding: 0.55rem 0.9rem; border-radius: 999px; color: white; background: var(--accent); }
+.language-switcher { display: inline-flex; gap: 0.45rem; align-items: center; font-size: 0.82rem; font-weight: 720; color: var(--muted); }
+.language-switcher select { min-width: 7.2rem; padding: 0.5rem 1.8rem 0.5rem 0.65rem; border: 1px solid rgb(24 35 29 / 0.2); border-radius: 999px; background-color: var(--paper); font: inherit; color: var(--ink); }
+.auth-card > .language-switcher { justify-self: end; margin-bottom: 0.5rem; }
 .market-page, .detail-page, .dashboard-page { display: block; width: min(88rem, 100%); min-height: calc(100svh - 5rem); margin: 0 auto; padding: clamp(1.5rem, 4vw, 4rem) 1rem 6rem; }
 .market-intro { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 0.6rem 2rem; align-items: end; padding: clamp(1rem, 3vw, 2.5rem) 0 clamp(2.5rem, 6vw, 5rem); }
 .market-intro .eyebrow, .market-intro h1, .market-intro .lede { grid-column: 1; }
 .market-intro h1 { max-width: 12ch; font-size: clamp(3.5rem, 8vw, 7.8rem); }
 .market-intro .button-link { grid-column: 2; grid-row: 1 / span 3; align-self: end; margin-bottom: 0.5rem; }
+.market-lanes { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; margin: 0 0 clamp(2.5rem, 6vw, 5rem); }
+.market-lane { display: grid; align-content: start; gap: 0.65rem; min-height: 13rem; padding: clamp(1.15rem, 2.4vw, 1.6rem); border: 1px solid rgb(24 35 29 / 0.13); border-radius: 1.2rem; background: rgb(255 253 248 / 0.84); box-shadow: 0 1rem 3rem rgb(41 55 47 / 0.05); }
+.market-lane.items { background: rgb(255 215 174 / 0.44); }
+.market-lane.knowledge { background: rgb(217 210 234 / 0.56); }
+.market-lane .eyebrow, .market-lane h2, .market-lane p { margin: 0; }
+.market-lane h2 { font-family: Georgia, serif; font-size: clamp(1.55rem, 3vw, 2rem); font-weight: 500; }
+.market-lane > p:last-of-type { color: var(--muted); line-height: 1.5; }
+.market-lane a { width: fit-content; margin-top: auto; color: var(--accent); font-weight: 750; text-underline-offset: 0.2em; }
 .market-layout { display: grid; grid-template-columns: minmax(15rem, 0.28fr) minmax(0, 1fr); gap: clamp(1.25rem, 4vw, 3rem); align-items: start; }
 .filters-panel { position: sticky; top: 1rem; border: 1px solid rgb(24 35 29 / 0.13); border-radius: 1.2rem; background: rgb(255 253 248 / 0.92); }
 .filters-form { display: grid; gap: 1.1rem; padding: 1.25rem; }
@@ -228,6 +241,7 @@ button:disabled { cursor: wait; opacity: 0.68; }
 .listing-card { overflow: hidden; border: 1px solid rgb(24 35 29 / 0.13); border-radius: 1.2rem; background: var(--surface); box-shadow: 0 1rem 3rem rgb(41 55 47 / 0.07); }
 .card-art { display: grid; min-height: 9rem; place-items: center; background: linear-gradient(135deg, var(--context), #b7d3c0); }
 .card-art.item { background: linear-gradient(135deg, var(--resource), #eab97d); }
+.card-art.other { background: linear-gradient(135deg, #d9d2ea, #b8cbe6); }
 .card-art span { color: rgb(24 35 29 / 0.55); font-family: Georgia, serif; font-size: 2.2rem; letter-spacing: 0.18em; }
 .card-body { display: grid; gap: 0.85rem; padding: 1.2rem; }
 .card-tags { display: flex; flex-wrap: wrap; gap: 0.35rem; }
@@ -255,6 +269,7 @@ button:disabled { cursor: wait; opacity: 0.68; }
 .detail-gallery img { width: 100%; height: auto; border-radius: 1rem; }
 .detail-placeholder { display: grid; grid-column: 1 / -1; min-height: 24rem; place-items: center; border-radius: 1.2rem; background: var(--context); }
 .detail-placeholder.item { background: var(--resource); }
+.detail-placeholder.other { background: #d9d2ea; }
 .detail-placeholder span { font-family: Georgia, serif; font-size: clamp(2rem, 6vw, 4rem); }
 .detail-main h1 { max-width: 14ch; font-size: clamp(3rem, 7vw, 6rem); }
 .detail-description { max-width: 48rem; color: var(--muted); font-size: 1.2rem; line-height: 1.65; white-space: pre-wrap; }
@@ -342,7 +357,7 @@ button:disabled { cursor: wait; opacity: 0.68; }
   .share-kit .button-secondary { grid-column: auto; grid-row: auto; }
   .site-header { align-items: start; }
   .site-header nav { justify-content: end; }
-  .market-intro, .market-layout, .detail-layout { grid-template-columns: 1fr; }
+  .market-intro, .market-lanes, .market-layout, .detail-layout { grid-template-columns: 1fr; }
   .market-intro .button-link { grid-column: 1; grid-row: auto; justify-self: start; }
   .filters-panel, .contact-card { position: static; }
   .listing-grid { grid-template-columns: 1fr; }

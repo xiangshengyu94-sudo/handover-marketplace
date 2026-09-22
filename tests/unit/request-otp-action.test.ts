@@ -184,6 +184,29 @@ describe("requestOtpAction", () => {
     expect(dependencies.signInWithOtp).not.toHaveBeenCalled();
   });
 
+  it("returns a retryable form error when rate limiting is unavailable", async () => {
+    dependencies.consumeRateLimit.mockRejectedValue(
+      new Error("rate limiter unavailable"),
+    );
+
+    const state = await requestOtpAction(
+      { step: "email" },
+      requestForm(),
+    );
+
+    expect(state).toEqual({
+      step: "email",
+      email: "student@example.com",
+      returnTo: "/account",
+      error: "Sign-in is temporarily unavailable. Try again shortly.",
+    });
+    expect(dependencies.createAuthIntent).not.toHaveBeenCalled();
+    expect(dependencies.signInWithOtp).not.toHaveBeenCalled();
+    expect(dependencies.captureOperationalFailure).toHaveBeenCalledWith(
+      "otp-delivery-failure-rate",
+    );
+  });
+
   it("maps provider rejection to a retryable form state and operational signal", async () => {
     dependencies.signInWithOtp.mockResolvedValue({
       error: new Error("provider unavailable"),

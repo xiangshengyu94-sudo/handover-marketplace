@@ -4,8 +4,12 @@ import { notFound, redirect } from "next/navigation";
 import { z } from "zod";
 
 import { ListingForm, type ListingFormValue } from "@/components/listings/listing-form";
+import { LanguageSwitcher } from "@/components/navigation/language-switcher";
 import { AuthorizationError } from "@/lib/auth/errors";
 import { requireActiveMember } from "@/lib/auth/require-active-member";
+import { BRAND_NAME } from "@/lib/brand";
+import { getDictionary, localizeCategories } from "@/lib/i18n/dictionaries";
+import { getLocale } from "@/lib/i18n/server";
 import { createClient } from "@/lib/supabase/server";
 
 export const metadata: Metadata = { title: "Edit listing" };
@@ -18,12 +22,14 @@ export default async function EditListingPage({ params }: { params: Promise<{ id
     if (error instanceof AuthorizationError && error.status === 401) redirect(`/login?returnTo=/listings/${candidateId}/edit`);
     throw error;
   }
+  const locale = await getLocale();
+  const dictionary = getDictionary(locale);
   const client = await createClient();
   const [listingResult, cities, organizations, categories] = await Promise.all([
     client.from("listings").select("id, version, kind, title, description, city_id, resource_category_id, price_amount, currency, approximate_area, available_from, expires_at, housing_details(*), item_details(*), listing_organizations(organization_id)").eq("id", parsedId.data).maybeSingle(),
     client.from("cities").select("id, name").eq("status", "active").order("name"),
     client.from("organizations").select("id, name, city_id").eq("status", "active").order("name"),
-    client.from("resource_categories").select("id, label, kind").eq("status", "active").order("label"),
+    client.from("resource_categories").select("id, slug, label, kind").eq("status", "active").order("label"),
   ]);
   const listing = listingResult.data;
   if (listingResult.error || !listing) notFound();
@@ -52,5 +58,6 @@ export default async function EditListingPage({ params }: { params: Promise<{ id
     pickupArea: item?.pickup_area,
     isGiveaway: item?.is_giveaway,
   };
-  return <main className="listing-page"><header className="listing-header"><Link href="/">Handover</Link><div><p className="eyebrow">Edit listing</p><h1>Keep it current.</h1></div></header><ListingForm cities={cities.data ?? []} organizations={organizations.data ?? []} categories={categories.data ?? []} initial={initial} /></main>;
+  const localizedCategories = localizeCategories(locale, categories.data ?? []);
+  return <main className="listing-page"><header className="listing-header"><div className="listing-brand"><Link href="/">{BRAND_NAME}</Link><LanguageSwitcher locale={locale} label={dictionary.localeLabel} /></div><div><p className="eyebrow">{dictionary.listingEyebrow}</p><h1>{dictionary.listingTitle}</h1></div></header><ListingForm cities={cities.data ?? []} organizations={organizations.data ?? []} categories={localizedCategories} initial={initial} dictionary={dictionary} /></main>;
 }

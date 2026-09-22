@@ -5,7 +5,7 @@ import type { ListingFilters } from "./filters";
 
 export const LISTINGS_PER_PAGE = 12;
 export type ListingSummary = {
-  id: string; title: string; description: string; kind: "housing" | "item"; status: "active" | "reserved";
+  id: string; title: string; description: string; kind: "housing" | "item" | "other"; status: "active" | "reserved";
   priceAmount: number; currency: string; approximateArea: string; availableFrom: string; expiresAt: string;
   city: { id: string; slug: string; name: string; countryCode: string };
   category: { id: string; slug: string; label: string };

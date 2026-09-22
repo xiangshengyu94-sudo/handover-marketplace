@@ -40,26 +40,19 @@ export async function requestOtpAction(
 
   const email = parsedEmail.data;
   const requestContext = await readRequestContext();
-  const [ipLimit, identityLimit, cooldown] = await Promise.all([
-    consumeRateLimit({
-      scope: "otp-request-ip",
-      keyHash: hashAbuseKey(requestContext.ip),
-      limit: 12,
-      windowSeconds: 15 * 60,
-    }),
-    consumeRateLimit({
-      scope: "otp-request-email",
-      keyHash: hashAbuseKey(email),
-      limit: 5,
-      windowSeconds: 15 * 60,
-    }),
-    consumeRateLimit({
-      scope: "otp-request-cooldown",
-      keyHash: hashAbuseKey(email),
-      limit: 1,
-      windowSeconds: 60,
-    }),
-  ]);
+  let limits: Awaited<ReturnType<typeof consumeRequestOtpLimits>>;
+  try {
+    limits = await consumeRequestOtpLimits(requestContext.ip, email);
+  } catch {
+    captureOperationalFailure("otp-delivery-failure-rate");
+    return {
+      step: "email",
+      email,
+      returnTo,
+      error: "Sign-in is temporarily unavailable. Try again shortly.",
+    };
+  }
+  const [ipLimit, identityLimit, cooldown] = limits;
 
   if (!ipLimit.allowed || !identityLimit.allowed) {
     return {
@@ -284,6 +277,29 @@ async function readRequestContext() {
       forwarded ||
       "unknown",
   };
+}
+
+function consumeRequestOtpLimits(ip: string, email: string) {
+  return Promise.all([
+    consumeRateLimit({
+      scope: "otp-request-ip",
+      keyHash: hashAbuseKey(ip),
+      limit: 12,
+      windowSeconds: 15 * 60,
+    }),
+    consumeRateLimit({
+      scope: "otp-request-email",
+      keyHash: hashAbuseKey(email),
+      limit: 5,
+      windowSeconds: 15 * 60,
+    }),
+    consumeRateLimit({
+      scope: "otp-request-cooldown",
+      keyHash: hashAbuseKey(email),
+      limit: 1,
+      windowSeconds: 60,
+    }),
+  ]);
 }
 
 async function getOrCreateBrowserBinding() {

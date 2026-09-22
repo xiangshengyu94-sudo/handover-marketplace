@@ -14,4 +14,23 @@ describe("public listing filters", () => {
   it("counts only meaningful filter fields", () => {
     expect(activeFilterCount(parseListingFilters({ city: "berlin", kind: "item", page: "7" }))).toBe(2);
   });
+
+  it("supports the generic other resource type in shareable filters", () => {
+    expect(parseListingFilters({ kind: "other", category: "other" })).toEqual({
+      kind: "other",
+      category: "other",
+      page: 1,
+    });
+  });
+
+  it("ignores blank browser form fields without discarding selected filters", () => {
+    expect(parseListingFilters({
+      city: "",
+      organization: "",
+      kind: "other",
+      category: "",
+      maxPrice: "",
+      availableBy: "",
+    })).toEqual({ kind: "other", page: 1 });
+  });
 });

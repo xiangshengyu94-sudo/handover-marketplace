@@ -27,7 +27,8 @@ values
   ('30000000-0000-4000-8000-000000000003', 'item', 'bicycle', 'Bicycle', 'active'),
   ('30000000-0000-4000-8000-000000000004', 'item', 'furniture', 'Furniture', 'active'),
   ('30000000-0000-4000-8000-000000000005', 'item', 'household', 'Household item', 'active'),
-  ('30000000-0000-4000-8000-000000000006', 'item', 'electronics', 'Electronics', 'active')
+  ('30000000-0000-4000-8000-000000000006', 'item', 'electronics', 'Electronics', 'active'),
+  ('30000000-0000-4000-8000-000000000007', 'other', 'other', 'Other', 'active')
 on conflict (id) do update set
   kind = excluded.kind,
   slug = excluded.slug,

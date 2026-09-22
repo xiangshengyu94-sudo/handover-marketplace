@@ -1,14 +1,16 @@
 import { z } from "zod";
 
 const slug = z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/).max(100);
+const blankToUndefined = (value: unknown) => value === "" ? undefined : value;
+
 export const listingFilterSchema = z.object({
-  city: slug.optional(),
-  organization: slug.optional(),
-  kind: z.enum(["housing", "item"]).optional(),
-  category: slug.optional(),
-  maxPrice: z.coerce.number().finite().min(0).max(1_000_000).optional(),
-  availableBy: z.iso.date().optional(),
-  page: z.coerce.number().int().min(1).max(10_000).default(1),
+  city: z.preprocess(blankToUndefined, slug.optional()),
+  organization: z.preprocess(blankToUndefined, slug.optional()),
+  kind: z.preprocess(blankToUndefined, z.enum(["housing", "item", "other"]).optional()),
+  category: z.preprocess(blankToUndefined, slug.optional()),
+  maxPrice: z.preprocess(blankToUndefined, z.coerce.number().finite().min(0).max(1_000_000).optional()),
+  availableBy: z.preprocess(blankToUndefined, z.iso.date().optional()),
+  page: z.preprocess(blankToUndefined, z.coerce.number().int().min(1).max(10_000).default(1)),
 });
 
 export type ListingFilters = z.infer<typeof listingFilterSchema>;

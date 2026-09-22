@@ -2,7 +2,7 @@ begin;
 
 create extension if not exists pgtap with schema extensions;
 set search_path = public, extensions;
-select plan(6);
+select plan(8);
 
 insert into auth.users (id, instance_id, aud, role, email, email_confirmed_at)
 values ('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaa9', '00000000-0000-0000-0000-000000000000', 'authenticated', 'authenticated', 'author@example.test', now());
@@ -31,6 +31,29 @@ select is(
   (select count(*)::integer from public.item_details d join public.listings l on l.id = d.listing_id where l.owner_id = auth.uid()),
   0,
   'inactive item details are absent'
+);
+
+select lives_ok(
+  $$ select * from public.save_own_other_listing(
+    null, null, '10000000-0000-4000-8000-000000000001', '{}'::uuid[],
+    '30000000-0000-4000-8000-000000000007', 'Language exchange meetup',
+    'A casual weekly meetup for newcomers who want to practise together.', 0,
+    'EUR', 'City centre', current_date + 1, now() + interval '30 days', false
+  ) $$,
+  'an active member can atomically save a generic information draft'
+);
+
+select is(
+  (
+    select count(*)::integer
+    from public.listings l
+    left join public.housing_details h on h.listing_id = l.id
+    left join public.item_details i on i.listing_id = l.id
+    where l.owner_id = auth.uid() and l.kind = 'other'
+      and h.listing_id is null and i.listing_id is null
+  ),
+  1,
+  'generic information listings have no housing or item detail row'
 );
 
 select throws_ok(

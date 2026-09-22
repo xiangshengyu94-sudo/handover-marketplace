@@ -1,7 +1,10 @@
 import type { Metadata } from "next";
 
 import { OtpForm } from "@/components/auth/otp-form";
+import { LanguageSwitcher } from "@/components/navigation/language-switcher";
 import { sanitizeReturnTo } from "@/lib/auth/return-to";
+import { getDictionary } from "@/lib/i18n/dictionaries";
+import { getLocale } from "@/lib/i18n/server";
 
 export const metadata: Metadata = { title: "Sign in" };
 
@@ -11,15 +14,16 @@ export default async function LoginPage({
   searchParams: Promise<{ returnTo?: string }>;
 }) {
   const returnTo = sanitizeReturnTo((await searchParams).returnTo);
+  const locale = await getLocale();
+  const dictionary = getDictionary(locale);
   return (
     <main>
       <section className="auth-card" aria-labelledby="sign-in-title">
-        <p className="eyebrow">Email verified, community open</p>
-        <h1 id="sign-in-title">Sign in without a password.</h1>
-        <p className="lede">
-          We will send a six-digit one-time code. No university domain is required.
-        </p>
-        <OtpForm returnTo={returnTo} />
+        <LanguageSwitcher locale={locale} label={dictionary.localeLabel} />
+        <p className="eyebrow">{dictionary.authEyebrow}</p>
+        <h1 id="sign-in-title">{dictionary.authTitle}</h1>
+        <p className="lede">{dictionary.authLede}</p>
+        <OtpForm returnTo={returnTo} dictionary={dictionary} />
       </section>
     </main>
   );

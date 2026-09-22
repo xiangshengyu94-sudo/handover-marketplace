@@ -37,6 +37,14 @@ const retentionMigration = readFileSync(
   "supabase/migrations/202608070009_retention_and_privacy.sql",
   "utf8",
 );
+const otherKindMigration = readFileSync(
+  "supabase/migrations/202608200001_add_other_listing_kind.sql",
+  "utf8",
+);
+const otherListingsMigration = readFileSync(
+  "supabase/migrations/202608200002_enable_other_information_listings.sql",
+  "utf8",
+);
 
 const exposedTables = [
   "profiles",
@@ -66,6 +74,17 @@ describe("database migration contract", () => {
     );
   });
 
+  it("adds generic information as an explicit kind without detail-table leakage", () => {
+    expect(otherKindMigration).toContain("add value if not exists 'other'");
+    expect(otherListingsMigration).toContain("'other',\n  'other',\n  'Other'");
+    expect(otherListingsMigration).toContain("target_kind = 'other'");
+    expect(otherListingsMigration).toContain("other listing must not have housing or item detail rows");
+    expect(otherListingsMigration).toContain("create or replace function public.save_own_other_listing(");
+    expect(otherListingsMigration).toContain("delete from public.housing_details h where h.listing_id = v_id");
+    expect(otherListingsMigration).toContain("where i.listing_id = v_id and i.status not in ('ready', 'deleted')");
+    expect(otherListingsMigration).toContain("to authenticated;");
+  });
+
   it("keeps private data and image metadata away from anonymous grants", () => {
     expect(accessMigration).toContain(
       "revoke all on schema private from public, anon, authenticated;",
@@ -85,7 +104,7 @@ describe("database migration contract", () => {
   });
 
   it("pins the search path on every security-definer helper", () => {
-    const securityDefinerFunctions = [accessMigration, authMigration, authoringMigration, lifecycleMigration, contactMigration, assistedMigration, moderationMigration, retentionMigration].flatMap(
+    const securityDefinerFunctions = [accessMigration, authMigration, authoringMigration, lifecycleMigration, contactMigration, assistedMigration, moderationMigration, retentionMigration, otherListingsMigration].flatMap(
       (migration) =>
         migration
           .split(/create(?: or replace)? function/)
@@ -99,7 +118,7 @@ describe("database migration contract", () => {
   });
 
   it("contains balanced PostgreSQL dollar-quoted bodies", () => {
-    for (const migration of [coreMigration, accessMigration, authMigration, authoringMigration, lifecycleMigration, contactMigration, assistedMigration, moderationMigration, retentionMigration]) {
+    for (const migration of [coreMigration, accessMigration, authMigration, authoringMigration, lifecycleMigration, contactMigration, assistedMigration, moderationMigration, retentionMigration, otherListingsMigration]) {
       expect(migration.match(/\$\$/g)?.length ?? 0).toSatisfy(
         (count: number) => count % 2 === 0,
       );
@@ -208,7 +227,10 @@ describe("database migration contract", () => {
 
   it("revokes member capability while an email change is pending", () => {
     expect(authMigration).toContain("u.email_confirmed_at is not null");
-    expect(authMigration).toContain("u.new_email is null");
+    expect(authMigration).toContain("nullif(u.email_change, '') is null");
+    for (const migration of [authMigration, assistedMigration, retentionMigration]) {
+      expect(migration).not.toContain(".new_email");
+    }
   });
 
   it("keeps privacy receipts and retention state service-only", () => {

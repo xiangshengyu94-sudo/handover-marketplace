@@ -1,8 +1,8 @@
-# Handover marketplace MVP scope
+# ReLoop marketplace MVP scope
 
 ## Product promise
 
-Handover gives people leaving a city one structured place to pass rooms and everyday items to people arriving next. It reduces repeated searching and reposting across fragmented WhatsApp and Facebook groups; it does not scrape those groups or claim to replace their communities.
+ReLoop gives people leaving a city one structured place to pass rooms and everyday items to people arriving next. It reduces repeated searching and reposting across fragmented WhatsApp and Facebook groups; it does not scrape those groups or claim to replace their communities.
 
 The first operating cohort is concentrated in one city and one to three partner communities, while the data model and every listing remain multi-city. Valencia and MERCURI are seed examples, not hard-coded restrictions.
 

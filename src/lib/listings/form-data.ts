@@ -24,9 +24,8 @@ export function parseListingFormData(
     source: "self" as const,
   };
 
-  const candidate =
-    kind === "housing"
-      ? {
+  const candidate = kind === "housing"
+    ? {
           ...common,
           kind,
           housing: {
@@ -42,7 +41,8 @@ export function parseListingFormData(
             ),
           },
         }
-      : {
+    : kind === "item"
+      ? {
           ...common,
           kind,
           item: {
@@ -51,7 +51,8 @@ export function parseListingFormData(
             pickupArea: text(formData, "pickupArea"),
             isGiveaway: formData.has("isGiveaway"),
           },
-        };
+        }
+      : { ...common, kind };
 
   return createListingInputSchema(categories).safeParse(candidate);
 }

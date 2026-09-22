@@ -1,6 +1,7 @@
 import "server-only";
 
 import { randomUUID } from "node:crypto";
+import { BRAND_NAME } from "@/lib/brand";
 import { createPrivilegedClient } from "@/lib/supabase/admin";
 import { renderContactEmail } from "./templates/contact";
 import { EmailProviderError, sendContactEmail, sendOperationalEmail } from "./resend";
@@ -71,7 +72,7 @@ export async function dispatchNotificationBatch(limit = 10) {
 }
 
 function renderOperationalNotification(kind: string, payload: Record<string, unknown>) {
-  if (kind === "role-changed") return { subject: "Your Handover role changed", text: `Your protected role was ${String(payload.action)}: ${String(payload.role)}. If you did not expect this, contact the service administrator.` };
+  if (kind === "role-changed") return { subject: `Your ${BRAND_NAME} role changed`, text: `Your protected role was ${String(payload.action)}: ${String(payload.role)}. If you did not expect this, contact the service administrator.` };
   const restored = kind === "listing-restored";
-  return { subject: restored ? "Your Handover listing was restored" : "Your Handover listing was hidden", text: `Listing ${String(payload.listingId)} was ${restored ? "restored" : "hidden"}. Reason: ${String(payload.reason)}. Keep this message for an appeal or follow-up.` };
+  return { subject: restored ? `Your ${BRAND_NAME} listing was restored` : `Your ${BRAND_NAME} listing was hidden`, text: `Listing ${String(payload.listingId)} was ${restored ? "restored" : "hidden"}. Reason: ${String(payload.reason)}. Keep this message for an appeal or follow-up.` };
 }

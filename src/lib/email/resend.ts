@@ -2,6 +2,7 @@ import "server-only";
 
 import { Resend, type WebhookEventPayload } from "resend";
 import { readServerEnv } from "@/lib/env";
+import { brandedEmailSender } from "@/lib/email/sender";
 
 export class EmailProviderError extends Error {
   constructor(readonly code: string, readonly retryable: boolean) {
@@ -13,7 +14,7 @@ export class EmailProviderError extends Error {
 export async function sendContactEmail(input: { to: string; replyTo: string; subject: string; text: string; html: string; idempotencyKey: string; outboxId: string }) {
   const environment = readServerEnv();
   const response = await new Resend(environment.resendApiKey).emails.send({
-    from: environment.emailFrom, to: input.to, replyTo: input.replyTo,
+    from: brandedEmailSender(environment.emailFrom), to: input.to, replyTo: input.replyTo,
     subject: input.subject, text: input.text, html: input.html,
     tags: [{ name: "message_type", value: "contact_relay" }, { name: "outbox_id", value: input.outboxId }],
   }, { idempotencyKey: input.idempotencyKey });
@@ -32,7 +33,7 @@ export function verifyResendWebhook(input: { payload: string; id: string; timest
 export async function sendOperationalEmail(input: { to: string; subject: string; text: string; idempotencyKey: string; messageType: string; recordId: string }) {
   const environment = readServerEnv();
   const response = await new Resend(environment.resendApiKey).emails.send({
-    from: environment.emailFrom, to: input.to, subject: input.subject, text: input.text,
+    from: brandedEmailSender(environment.emailFrom), to: input.to, subject: input.subject, text: input.text,
     tags: [{ name: "message_type", value: input.messageType }, { name: "record_id", value: input.recordId }],
   }, { idempotencyKey: input.idempotencyKey });
   if (response.error) {
