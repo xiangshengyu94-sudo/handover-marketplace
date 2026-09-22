@@ -22,6 +22,11 @@ describe("authentication provider contract", () => {
     expect(config).toContain("otp_expiry = 600");
     expect(otpTemplate).toContain("{{ .Token }}");
     expect(otpTemplate).not.toContain("{{ .ConfirmationURL }}");
+    expect(config).toContain(
+      'subject = "{{ .Token }} is your ReLoop sign-in code"',
+    );
+    expect(otpTemplate).toContain("Your ReLoop sign-in code");
+    expect(otpTemplate).not.toContain("Handover");
   });
 
   it("keeps email changes on the provider's confirmation link flow", () => {
