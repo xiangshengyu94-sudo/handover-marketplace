@@ -3,6 +3,7 @@ import Link from "next/link";
 import { ListingCard } from "@/components/listings/listing-card";
 import { ListingFiltersForm } from "@/components/listings/listing-filters";
 import { SiteHeader } from "@/components/navigation/site-header";
+import { getCommunityCopy } from "@/lib/community/copy";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { getLocale } from "@/lib/i18n/server";
 import { parseListingFilters } from "@/lib/listings/filters";
@@ -13,6 +14,7 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
   const filters = parseListingFilters(await searchParams);
   const locale = await getLocale();
   const dictionary = getDictionary(locale);
+  const communityCopy = getCommunityCopy(locale);
   const client = await createClient();
   const taxonomyResults = await Promise.all([
     client.from("cities").select("slug, name").eq("status", "active").order("name"),
@@ -52,6 +54,8 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
             <h2>{dictionary.homeKnowledgeTitle}</h2>
             <p>{dictionary.homeKnowledgeBody}</p>
             <Link href="/?kind=other">{dictionary.homeKnowledgeLink}</Link>
+            <Link href="/community">{communityCopy.nav}</Link>
+            <div className="community-entry-links"><Link href="/community/new?type=question">{communityCopy.ask}</Link><Link href="/community/new?type=experience">{communityCopy.share}</Link></div>
           </article>
         </section>
 

@@ -222,6 +222,40 @@ button:disabled { cursor: wait; opacity: 0.68; }
 .market-lane h2 { font-family: Georgia, serif; font-size: clamp(1.55rem, 3vw, 2rem); font-weight: 500; }
 .market-lane > p:last-of-type { color: var(--muted); line-height: 1.5; }
 .market-lane a { width: fit-content; margin-top: auto; color: var(--accent); font-weight: 750; text-underline-offset: 0.2em; }
+.community-entry-links { display: flex; flex-wrap: wrap; gap: 0.5rem 1rem; }
+.community-entry-links a { margin-top: 0; }
+
+.community-page { display: block; width: min(76rem, 100%); margin: 0 auto; padding: clamp(1.5rem, 4vw, 4rem) 1rem 6rem; }
+.community-intro { padding: 0 0 2rem; }
+.community-intro h1, .community-compose h1 { max-width: 13ch; font-size: clamp(3rem, 7vw, 6rem); }
+.community-tabs, .community-type-tabs { display: flex; flex-wrap: wrap; gap: 0.55rem; margin: 1.5rem 0; }
+.community-tabs a, .community-type-tabs a { padding: 0.7rem 1rem; border: 1px solid rgb(24 35 29 / 0.2); border-radius: 999px; text-decoration: none; font-weight: 750; }
+.community-tabs .selected, .community-type-tabs .selected { color: white; background: var(--accent); border-color: var(--accent); }
+.community-filter { display: flex; flex-wrap: wrap; gap: 0.6rem; align-items: center; margin: 0 0 1.5rem; }
+.community-filter label { font-weight: 750; }
+.community-filter select, .community-filter button { min-height: 2.8rem; padding: 0.5rem 0.8rem; border: 1px solid rgb(24 35 29 / 0.25); border-radius: 0.7rem; background: var(--surface); }
+.community-filter button { color: white; border-color: var(--accent); background: var(--accent); font-weight: 750; }
+.community-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 19rem), 1fr)); gap: 1rem; }
+.community-card, .community-article, .community-discussion, .community-form { padding: clamp(1.25rem, 3vw, 2rem); border: 1px solid rgb(24 35 29 / 0.13); border-radius: 1.3rem; background: var(--surface); overflow-wrap: anywhere; }
+.community-card h2 { font-family: Georgia, serif; font-size: 1.7rem; font-weight: 500; line-height: 1.15; }
+.community-card h2 a { text-decoration: none; }
+.community-card p { display: -webkit-box; overflow: hidden; -webkit-box-orient: vertical; -webkit-line-clamp: 4; color: var(--muted); line-height: 1.5; white-space: pre-wrap; }
+.community-compose { max-width: 54rem; }
+.community-form { display: grid; gap: 1.25rem; margin-top: 2rem; }
+.community-form .community-type-tabs { margin: 0; }
+.community-form .button-link { justify-self: start; }
+.community-detail { max-width: 62rem; }
+.community-article { margin-top: 1.5rem; }
+.community-article h1 { max-width: none; font-size: clamp(2.5rem, 6vw, 5rem); }
+.community-date { color: var(--muted); }
+.community-body, .answer-card p { white-space: pre-wrap; line-height: 1.7; }
+.community-discussion { display: grid; gap: 1rem; margin-top: 1rem; }
+.community-discussion h2, .community-discussion h3 { margin-bottom: 0; font-family: Georgia, serif; font-weight: 500; }
+.answer-list { display: grid; gap: 0.8rem; }
+.answer-card { padding: 1rem; border-radius: 0.9rem; background: var(--context); overflow-wrap: anywhere; }
+.answer-card p { margin: 0 0 0.8rem; }
+.answer-card small { color: var(--muted); }
+.answer-form { margin-top: 0; }
 .market-layout { display: grid; grid-template-columns: minmax(15rem, 0.28fr) minmax(0, 1fr); gap: clamp(1.25rem, 4vw, 3rem); align-items: start; }
 .filters-panel { position: sticky; top: 1rem; border: 1px solid rgb(24 35 29 / 0.13); border-radius: 1.2rem; background: rgb(255 253 248 / 0.92); }
 .filters-form { display: grid; gap: 1.1rem; padding: 1.25rem; }
