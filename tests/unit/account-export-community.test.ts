@@ -11,14 +11,15 @@ describe("account export", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     database.from.mockImplementation((table: string) => ({
-      select: () => ({ eq: (column: string, userId: string) => Promise.resolve({
+      select: () => ({ eq: (column: string, userId: string) => ({ order: () => ({ order: () => ({ range: () => Promise.resolve({
         data: column === "author_id" && userId === "member-1"
           ? table === "community_posts"
             ? [{ id: "question-1", type: "question" }, { id: "experience-1", type: "experience" }]
             : [{ id: "answer-1", body: "An answer" }]
           : [{ id: "someone-elses-content" }],
+        count: table === "community_posts" ? 2 : 1,
         error: null,
-      }) }),
+      }) }) }) }) }),
     }));
     database.rpc.mockResolvedValue({ data: { account: { email: "member@example.test" }, listings: [] }, error: null });
   });
@@ -36,9 +37,23 @@ describe("account export", () => {
 
   it("does not issue a completed export receipt when community data cannot be read", async () => {
     database.from.mockImplementation((table: string) => ({
-      select: () => ({ eq: () => Promise.resolve({ data: null, error: table === "community_answers" ? { message: "unavailable" } : null }) }),
+      select: () => ({ eq: () => ({ order: () => ({ order: () => ({ range: () => Promise.resolve({ data: null, count: 0, error: table === "community_answers" ? { message: "unavailable" } : null }) }) }) }) }),
     }));
     await expect(exportAccountData("member-1")).rejects.toThrow("Account export failed.");
     expect(database.rpc).not.toHaveBeenCalled();
+  });
+
+  it("fetches every page before issuing the export receipt", async () => {
+    database.from.mockImplementation((table: string) => ({
+      select: () => ({ eq: () => ({ order: () => ({ order: () => ({ range: (from: number) => Promise.resolve({
+        data: from === 0 ? Array.from({ length: 1000 }, (_, index) => ({ id: `${table}-${index}` })) : [{ id: `${table}-last` }],
+        count: 1001,
+        error: null,
+      }) }) }) }) }),
+    }));
+    const result = await exportAccountData("member-1");
+    expect(result.communityPosts).toHaveLength(1001);
+    expect(result.communityAnswers).toHaveLength(1001);
+    expect(database.rpc).toHaveBeenCalledTimes(1);
   });
 });

@@ -2,12 +2,12 @@ begin;
 
 create extension if not exists pgtap with schema extensions;
 set search_path = public, extensions;
-select plan(12);
+select plan(15);
 
 insert into auth.users (id, instance_id, aud, role, email, email_confirmed_at)
 values ('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaacc', '00000000-0000-0000-0000-000000000000', 'authenticated', 'authenticated', 'community-author@example.test', now());
 
-set local role authenticated;
+set local role service_role;
 select set_config('request.jwt.claims', '{"sub":"aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaacc","role":"authenticated"}', true);
 
 select lives_ok(
@@ -65,6 +65,14 @@ select throws_ok(
   '23514', null, 'public answers reject private contact details'
 );
 
+set local role authenticated;
+select set_config('request.jwt.claims', '{"sub":"aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaacc","role":"authenticated"}', true);
+select throws_ok(
+  $$ insert into public.community_posts (author_id, city_id, type, title, body)
+     values (auth.uid(), '10000000-0000-4000-8000-000000000001', 'question', 'Direct insert must fail', 'A verified member must publish through the rate-limited server action.') $$,
+  '42501', null, 'verified members cannot bypass the server posting limit'
+);
+
 reset role;
 insert into auth.users (id, instance_id, aud, role, email)
 values ('bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbc', '00000000-0000-0000-0000-000000000000', 'authenticated', 'authenticated', 'unverified-community@example.test');
@@ -82,6 +90,11 @@ select is(
   1,
   'anonymous visitors can read published questions'
 );
+select is(
+  (select count(*)::integer from public.community_answers),
+  1,
+  'anonymous visitors can read answers under visible questions'
+);
 
 reset role;
 update public.profiles set account_status = 'deleted', deleted_at = now()
@@ -96,6 +109,13 @@ select is(
   (select count(*)::integer from public.community_answers where author_id = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaacc' and moderation_visible = false and body = 'This answer was removed after account deletion.'),
   1,
   'account deletion removes authored answers from public view and scrubs their text'
+);
+
+set local role service_role;
+select throws_ok(
+  $$ insert into public.community_posts (author_id, city_id, type, title, body)
+     values ('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaacc', '10000000-0000-4000-8000-000000000001', 'question', 'Post after account deletion', 'A delayed publishing request must not survive account deletion.') $$,
+  '23514', null, 'privileged publishing rechecks account status after deletion'
 );
 
 select * from finish();

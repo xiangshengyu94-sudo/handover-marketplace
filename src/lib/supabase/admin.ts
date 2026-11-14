@@ -15,6 +15,7 @@ export const PRIVILEGED_IMPORT_ALLOWLIST = [
   "src/lib/privacy/delete-account.ts",
   "src/lib/privacy/export.ts",
   "src/lib/retention/cleanup.ts",
+  "src/lib/community/admin.ts",
 ] as const;
 
 export function assertPrivilegedImporter(importerPath: string) {

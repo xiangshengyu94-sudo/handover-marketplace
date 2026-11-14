@@ -28,6 +28,11 @@ export default async function CommunityPostPage({ params }: { params: Promise<{ 
     post.related_question_id ? client.from("community_posts").select("id, title").eq("id", post.related_question_id).maybeSingle() : Promise.resolve({ data: null }),
     client.auth.getClaims(),
   ]);
+  const relatedQueriesFailed = [city, organization, answers, experiences, related]
+    .some((result) => "error" in result && Boolean(result.error));
+  if (relatedQueriesFailed) {
+    return <><SiteHeader /><main className="community-page community-detail"><Link href="/community">← {copy.back}</Link><p className="empty-state">{copy.unavailable}</p></main></>;
+  }
   const signedIn = typeof claims.data?.claims.sub === "string";
   const dateFormatter = new Intl.DateTimeFormat(FORMAT_LOCALES[locale], { dateStyle: "medium" });
   const date = (value: string) => dateFormatter.format(new Date(value));

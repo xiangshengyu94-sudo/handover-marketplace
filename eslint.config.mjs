@@ -28,6 +28,7 @@ export default defineConfig([
     files: [
       "src/lib/auth/admin.ts",
       "src/lib/contact/admin.ts",
+      "src/lib/community/admin.ts",
       "src/lib/email/dispatcher.ts",
       "src/lib/images/process.ts",
       "src/lib/assisted/claims.ts",

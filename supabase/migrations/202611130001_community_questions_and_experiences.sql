@@ -33,12 +33,39 @@ create index community_posts_city_feed_idx on public.community_posts (city_id, c
   where moderation_visible and deleted_at is null;
 create index community_posts_type_feed_idx on public.community_posts (type, created_at desc, id desc)
   where moderation_visible and deleted_at is null;
-create index community_posts_author_idx on public.community_posts (author_id);
+create index community_posts_author_idx on public.community_posts (author_id, created_at, id);
 create index community_posts_related_idx on public.community_posts (related_question_id, created_at desc)
   where related_question_id is not null and moderation_visible and deleted_at is null;
 create index community_answers_question_idx on public.community_answers (question_id, created_at)
   where moderation_visible and deleted_at is null;
-create index community_answers_author_idx on public.community_answers (author_id);
+create index community_answers_author_idx on public.community_answers (author_id, created_at, id);
+
+create function public.validate_community_author()
+returns trigger language plpgsql security definer set search_path = pg_catalog, public, auth as $$
+declare
+  author_status text;
+  author_deleted_at timestamptz;
+  confirmed_at timestamptz;
+  pending_email text;
+begin
+  select p.account_status, p.deleted_at, u.email_confirmed_at, u.email_change
+    into author_status, author_deleted_at, confirmed_at, pending_email
+  from public.profiles p
+  join auth.users u on u.id = p.user_id
+  where p.user_id = new.author_id
+  for update of p;
+  if not found or author_status <> 'active' or author_deleted_at is not null
+    or confirmed_at is null or nullif(pending_email, '') is not null then
+    raise exception using errcode = '23514', message = 'community author is not eligible';
+  end if;
+  return new;
+end;
+$$;
+
+create trigger community_posts_author before insert on public.community_posts
+for each row execute function public.validate_community_author();
+create trigger community_answers_author before insert on public.community_answers
+for each row execute function public.validate_community_author();
 
 create function public.validate_community_post()
 returns trigger language plpgsql security definer set search_path = pg_catalog, public as $$
@@ -122,30 +149,13 @@ alter table public.community_answers enable row level security;
 alter table public.community_answers force row level security;
 revoke all on public.community_posts, public.community_answers from public, anon, authenticated;
 
-create function public.community_author_is_eligible()
-returns boolean language sql stable security definer set search_path = pg_catalog, public, auth as $$
-  select public.current_user_is_active() and exists (
-    select 1 from auth.users u where u.id = auth.uid()
-      and u.email_confirmed_at is not null and nullif(u.email_change, '') is null
-  );
-$$;
-
 create policy community_posts_read on public.community_posts for select to anon, authenticated
 using (moderation_visible and deleted_at is null);
-create policy community_posts_create on public.community_posts for insert to authenticated
-with check (author_id = auth.uid() and public.community_author_is_eligible());
 create policy community_answers_read on public.community_answers for select to anon, authenticated
 using (
   moderation_visible and deleted_at is null and exists (
     select 1 from public.community_posts q where q.id = question_id
-      and q.type = 'question' and q.moderation_visible and q.deleted_at is null
-  )
-);
-create policy community_answers_create on public.community_answers for insert to authenticated
-with check (
-  author_id = auth.uid() and public.community_author_is_eligible() and exists (
-    select 1 from public.community_posts q where q.id = question_id
-      and q.type = 'question' and q.moderation_visible and q.deleted_at is null
+      and q.type = 'question'
   )
 );
 
@@ -153,13 +163,8 @@ grant select (id, city_id, organization_id, type, title, body, related_question_
   on public.community_posts to anon, authenticated;
 grant select (id, question_id, body, created_at)
   on public.community_answers to anon, authenticated;
-grant insert (author_id, city_id, organization_id, type, title, body, related_question_id)
-  on public.community_posts to authenticated;
-grant insert (question_id, author_id, body)
-  on public.community_answers to authenticated;
 grant all on public.community_posts, public.community_answers to service_role;
+revoke execute on function public.validate_community_author() from public, anon, authenticated;
 revoke execute on function public.validate_community_post() from public, anon, authenticated;
 revoke execute on function public.validate_community_answer() from public, anon, authenticated;
 revoke execute on function public.purge_deleted_member_community_content() from public, anon, authenticated;
-revoke execute on function public.community_author_is_eligible() from public, anon;
-grant execute on function public.community_author_is_eligible() to authenticated;
